@@ -1,0 +1,163 @@
+{{!
+    AI 编程助手 - 最近自由对话记录页模板（一级：按页面+用户汇总）
+
+    展示所有学生最近提交的自由对话记录，按页面和用户分组汇总。
+    支持时间范围筛选、学生姓名搜索、分页和 CSV 导出。
+    点击记录可跳转到 free_chat_detail.php 查看具体对话内容。
+
+    @template local_ai_programming_assistant/recent_free_chats
+    @author zfl
+}}
+<div class="ai-programming-assistant-recent-free-chats-page">
+    {{> local_ai_programming_assistant/nav_tabs}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+
+            <a href="{{{backtofreestatsurl}}}" class="btn btn-outline-info btn-sm">
+                {{#str}}free_stats_page_title, local_ai_programming_assistant{{/str}}
+            </a>
+            <span class="mx-2 text-muted small">&gt;</span>
+            <span class="text-muted small fw-bold">{{#str}}recent_free_chats_page_title, local_ai_programming_assistant{{/str}}</span>
+        </div>
+    </div>
+
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="get" action="" class="d-flex flex-wrap align-items-end gap-2">
+                <div class="btn-group btn-group-sm" role="group" aria-label="{{#str}}stats_date_presets, local_ai_programming_assistant{{/str}}">
+                    {{#presets}}
+                    <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                       class="btn btn-outline-primary {{#isactive}}active{{/isactive}}">
+                        {{label}}
+                    </a>
+                    {{/presets}}
+                </div>
+                <div>
+                    <label for="starttime" class="form-label small mb-0">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                    <input type="date" id="starttime" name="starttime" class="form-control form-control-sm"
+                           value="{{starttime_display}}" style="width:140px">
+                </div>
+                <div>
+                    <label for="endtime" class="form-label small mb-0">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                    <input type="date" id="endtime" name="endtime" class="form-control form-control-sm"
+                           value="{{endtime_display}}" style="width:140px">
+                </div>
+                <div>
+                    <label for="studentsearch" class="form-label small mb-0">{{#str}}recent_free_chats_filter_student, local_ai_programming_assistant{{/str}}</label>
+                    <input type="text" id="studentsearch" name="studentsearch" class="form-control form-control-sm"
+                           style="width:160px" placeholder="{{#str}}stats_student_search_placeholder, local_ai_programming_assistant{{/str}}"
+                           value="{{studentsearch}}">
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                {{#studentsearch}}
+                <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                   class="btn btn-outline-secondary btn-sm">{{#str}}clear, local_ai_programming_assistant{{/str}}</a>
+                {{/studentsearch}}
+                {{#hasdata}}
+                <a href="?export=csv&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{#studentsearch}}&amp;studentsearch={{studentsearch}}{{/studentsearch}}"
+                   class="btn btn-outline-success btn-sm">
+                    {{#str}}export_csv, local_ai_programming_assistant{{/str}}
+                </a>
+                {{/hasdata}}
+            </form>
+            <div class="mt-2">
+                <span class="badge bg-info">{{#str}}recent_free_chats_total, local_ai_programming_assistant{{/str}}: {{totalrecords}}</span>
+            </div>
+        </div>
+    </div>
+
+    {{^hasdata}}
+    <div class="alert alert-warning">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</div>
+    {{/hasdata}}
+
+    {{#hasdata}}
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped mb-0">
+                    <thead>
+                        <tr>
+                            <th>{{#str}}student_free_pages_pageid, local_ai_programming_assistant{{/str}}</th>
+                            <th>{{#str}}student_free_pages_pagename, local_ai_programming_assistant{{/str}}</th>
+                            <th>{{#str}}student_free_pages_pagetype, local_ai_programming_assistant{{/str}}</th>
+                            <th>{{#str}}student_free_pages_course, local_ai_programming_assistant{{/str}}</th>
+                            <th>{{#str}}recent_free_chats_student, local_ai_programming_assistant{{/str}}</th>
+                            <th>{{#str}}stats_conversation_count, local_ai_programming_assistant{{/str}}</th>
+                            <th>{{#str}}student_questions_last_interaction, local_ai_programming_assistant{{/str}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#records}}
+                        <tr>
+                            <td>
+                                <a href="{{{detailurl}}}" class="text-decoration-none"
+                                   title="{{#str}}recent_free_chats_view_detail, local_ai_programming_assistant{{/str}}">
+                                    {{contextid}}
+                                </a>
+                            </td>
+                            <td>
+                                {{#pageurl}}
+                                <a href="{{{pageurl}}}" class="text-decoration-none" target="_blank">{{pagename}}</a>
+                                {{/pageurl}}
+                                {{^pageurl}}
+                                <a href="{{{detailurl}}}" class="text-decoration-none">{{pagename}}</a>
+                                {{/pageurl}}
+                            </td>
+                            <td><span class="badge bg-light text-dark">{{pagetype}}</span></td>
+                            <td>
+                                {{#coursename}}
+                                <span class="text-muted small">{{coursename}}</span>
+                                {{/coursename}}
+                                {{^coursename}}
+                                <span class="text-muted small">-</span>
+                                {{/coursename}}
+                            </td>
+                            <td>
+                                <span class="fw-bold">{{fullname}}</span>
+                                <span class="text-muted small ms-1">({{username}})</span>
+                            </td>
+                            <td>
+                                <a href="{{{conversationlisturl}}}" class="text-decoration-none"
+                                   title="{{#str}}stats_view_user_conversations, local_ai_programming_assistant{{/str}}">
+                                    {{interaction_count}}
+                                </a>
+                            </td>
+                            <td><span class="text-muted small">{{last_interaction_str}}</span></td>
+                        </tr>
+                        {{/records}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-2 mb-2 px-2">
+        <div class="d-flex align-items-center gap-2">
+            <small class="text-muted">{{totalrecords}} {{#str}}recent_free_chats_total, local_ai_programming_assistant{{/str}}</small>
+            <select class="form-select form-select-sm" style="width:auto" onchange="if(this.value)window.location.href=this.value">
+                {{#perpageoptions}}
+                <option value="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;perpage={{value}}{{#studentsearch}}&amp;studentsearch={{studentsearch}}{{/studentsearch}}" {{#selected}}selected{{/selected}}>{{value}}</option>
+                {{/perpageoptions}}
+            </select>
+        </div>
+        {{#hasmulti}}
+        <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {{#pageone}}disabled{{/pageone}}">
+                    <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;perpage={{perpage}}&amp;page={{prevpage}}{{#studentsearch}}&amp;studentsearch={{studentsearch}}{{/studentsearch}}" aria-label="{{#str}}previous{{/str}}">&laquo;</a>
+                </li>
+                {{#pagenums}}
+                <li class="page-item {{#active}}active{{/active}}">
+                    <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;perpage={{perpage}}&amp;page={{num}}{{#studentsearch}}&amp;studentsearch={{studentsearch}}{{/studentsearch}}">{{num}}</a>
+                </li>
+                {{/pagenums}}
+                <li class="page-item {{#pagelast}}disabled{{/pagelast}}">
+                    <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;perpage={{perpage}}&amp;page={{nextpage}}{{#studentsearch}}&amp;studentsearch={{studentsearch}}{{/studentsearch}}" aria-label="{{#str}}next{{/str}}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        {{/hasmulti}}
+    </div>
+    {{/hasdata}}
+
+</div>

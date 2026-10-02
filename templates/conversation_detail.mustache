@@ -1,0 +1,149 @@
+{{!
+    AI 编程助手 - 会话详情页模板（二级页面）
+
+    显示指定会话的详细信息，包括会话概览和所有消息记录。
+    消息按时间从早到晚顺序显示，学生消息和 AI 回复交替展示。
+
+    @template local_ai_programming_assistant/conversation_detail
+    @author zfl
+}}
+
+<div class="ai-programming-assistant-conversation-detail-page">
+    
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <span class="text-muted small fw-bold">{{#str}}conversation_detail_page_title, local_ai_programming_assistant{{/str}}</span>
+        </div>
+        <div class="d-flex gap-2">
+            {{#hasquiz}}
+            <a href="{{{quizurl}}}" class="btn btn-outline-primary btn-sm">
+                {{#str}}backtoquiz, local_ai_programming_assistant{{/str}}
+            </a>
+            {{/hasquiz}}
+            <a href="{{{backurl}}}" class="btn btn-outline-secondary btn-sm">
+                {{#str}}chat_detail_back, local_ai_programming_assistant{{/str}}
+            </a>
+        </div>
+    </div>
+
+    {{! 筛选上下文 + 导航条：当通过 student + question + mode 筛选进入时，展示计数器、prev/next、返回全部会话列表 }}
+    {{#has_convcounter}}
+    <div class="card mb-3">
+        <div class="card-body py-2 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge bg-secondary">
+                    {{#str}}conversation_detail_filtered_scope, local_ai_programming_assistant{{/str}}
+                </span>
+                <span class="fw-bold text-nowrap">{{conv_current}} <span class="text-muted small">/</span> {{conv_total}}</span>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                {{#prevconvurl}}
+                <a href="{{{prevconvurl}}}" class="btn btn-outline-secondary btn-sm">&laquo; {{#str}}conversation_detail_prev, local_ai_programming_assistant{{/str}}</a>
+                {{/prevconvurl}}
+                {{^prevconvurl}}
+                <button class="btn btn-outline-secondary btn-sm" disabled>&laquo; {{#str}}conversation_detail_prev, local_ai_programming_assistant{{/str}}</button>
+                {{/prevconvurl}}
+                {{#nextconvurl}}
+                <a href="{{{nextconvurl}}}" class="btn btn-outline-secondary btn-sm">{{#str}}conversation_detail_next, local_ai_programming_assistant{{/str}} &raquo;</a>
+                {{/nextconvurl}}
+                {{^nextconvurl}}
+                <button class="btn btn-outline-secondary btn-sm" disabled>{{#str}}conversation_detail_next, local_ai_programming_assistant{{/str}} &raquo;</button>
+                {{/nextconvurl}}
+                {{#conversationlisturl}}
+                <a href="{{{conversationlisturl}}}" class="btn btn-outline-info btn-sm">
+                    {{#str}}conversation_detail_show_all, local_ai_programming_assistant{{/str}}
+                </a>
+                {{/conversationlisturl}}
+            </div>
+        </div>
+    </div>
+    {{/has_convcounter}}
+
+    {{! 会话概览卡片 }}
+    <div class="card mb-3">
+        <div class="card-body">
+            {{! 第1行：学生 / 开始时间 / 消息数 / 模式 }}
+            <div class="row">
+                <div class="col-md-3">
+                    <small class="text-muted">{{#str}}conversation_list_student, local_ai_programming_assistant{{/str}}</small>
+                    <div class="fw-bold">{{conversation.studentname}}</div>
+                    <small class="text-muted">{{conversation.username}}</small>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">{{#str}}conversation_list_starttime, local_ai_programming_assistant{{/str}}</small>
+                    <div class="text-nowrap">{{conversation.starttime_str}}</div>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">{{#str}}conversation_list_messagecount, local_ai_programming_assistant{{/str}}</small>
+                    <div><span class="badge bg-info">{{conversation.messagecount}}</span></div>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">{{#str}}conversation_list_actiontype, local_ai_programming_assistant{{/str}}</small>
+                    <div><span class="badge bg-light text-primary border border-primary">{{conversation.actiontype_label}}</span></div>
+                </div>
+            </div>
+            {{! 第2行：所属课程 / 上下文 }}
+            <div class="row mt-2">
+                {{#has_coursename}}
+                <div class="col-md-4">
+                    <small class="text-muted">{{#str}}conversation_detail_course, local_ai_programming_assistant{{/str}}</small>
+                    <div>{{conversation.coursename}}</div>
+                </div>
+                <div class="col-md-8">
+                    <small class="text-muted">{{#str}}conversation_list_context, local_ai_programming_assistant{{/str}}</small>
+                    <div>{{conversation.context_name}}</div>
+                </div>
+                {{/has_coursename}}
+                {{^has_coursename}}
+                <div class="col-md-12">
+                    <small class="text-muted">{{#str}}conversation_list_context, local_ai_programming_assistant{{/str}}</small>
+                    <div>{{conversation.context_name}}</div>
+                </div>
+                {{/has_coursename}}
+            </div>
+        </div>
+    </div>
+
+    {{! 消息记录 }}
+    <div class="card">
+        <div class="card-header">
+            {{#str}}conversation_detail_messages, local_ai_programming_assistant{{/str}}
+            <small class="text-muted ms-2">({{totalmessages}})</small>
+        </div>
+        {{^hasdata}}
+        <div class="card-body">
+            <div class="alert alert-warning mb-0">{{#str}}conversation_no_messages, local_ai_programming_assistant{{/str}}</div>
+        </div>
+        {{/hasdata}}
+        {{#hasdata}}
+        <div class="card-body">
+            <div class="ai-programming-assistant-messages">
+                {{#messages}}
+                <div class="card mb-3 {{#is_user}}border-primary{{/is_user}}{{#is_assistant}}border-success{{/is_assistant}}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div>
+                                {{#is_user}}
+                                <span class="badge bg-primary">{{#str}}me, local_ai_programming_assistant{{/str}}</span>
+                                {{/is_user}}
+                                {{#is_assistant}}
+                                <span class="badge bg-success">{{#str}}ai_sender, local_ai_programming_assistant{{/str}}</span>
+                                {{/is_assistant}}
+                            </div>
+                            <small class="text-muted">{{timecreated_str}}</small>
+                        </div>
+                        {{#is_user}}
+                        <pre class="ai-source-code-pre mb-0">{{content}}</pre>
+                        {{/is_user}}
+                        {{#is_assistant}}
+                        <div class="border p-3 rounded bg-light">{{{content}}}</div>
+                        {{/is_assistant}}
+                    </div>
+                </div>
+                {{/messages}}
+            </div>
+        </div>
+        {{/hasdata}}
+    </div>
+
+</div>

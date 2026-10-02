@@ -1,0 +1,430 @@
+{{!
+    AI 编程助手 - 全局统计页面模板
+
+    展示 AI 助手的全局使用统计数据，包括概览、热门试题和学生使用排行。
+
+    @template local_ai_programming_assistant/stats_page
+    @author zfl
+}}
+<div class="ai-programming-assistant-stats-page">
+
+    {{> local_ai_programming_assistant/nav_tabs}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+
+            <span class="text-muted small fw-bold">
+                {{#str}}stats_page_title, local_ai_programming_assistant{{/str}}
+            </span>
+            <span class="mx-2 text-muted small">&gt;</span>
+            <a href="{{{recentquizchatsurl}}}" class="btn btn-outline-info btn-sm ms-2">
+                {{#str}}recent_quiz_chats_page_title, local_ai_programming_assistant{{/str}}
+            </a>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="get" action="" class="d-flex justify-content-between align-items-start gap-3">
+                <div class="d-flex flex-column gap-2">
+                    <div class="d-flex align-items-end gap-2">
+                        {{#has_courses}}
+                        <div>
+                            <label for="courseid" class="form-label small mb-0">{{#str}}course, core{{/str}}</label>
+                            <select id="courseid" name="courseid" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="0">{{#str}}all, core{{/str}}</option>
+                                {{#courses}}
+                                <option value="{{id}}" {{#isselected}}selected{{/isselected}}>{{fullname}}</option>
+                                {{/courses}}
+                            </select>
+                        </div>
+                        {{/has_courses}}
+                        {{#has_quizzes}}
+                        <div>
+                            <label for="quizid" class="form-label small mb-0">{{#str}}stats_quiz, local_ai_programming_assistant{{/str}}</label>
+                            <select id="quizid" name="quizid" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="0" {{^quizid}}selected{{/quizid}}>
+                                    {{#str}}stats_all_quizzes, local_ai_programming_assistant{{/str}}
+                                </option>
+                                {{#quizzes}}
+                                <option value="{{quizid}}" {{#isselected}}selected{{/isselected}}>{{quiz_name}}</option>
+                                {{/quizzes}}
+                            </select>
+                        </div>
+                        {{/has_quizzes}}
+                    </div>
+                    <div>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="{{#str}}stats_date_presets, local_ai_programming_assistant{{/str}}">
+                            {{#presets}}
+                            <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;quizid={{quizid}}&amp;courseid={{courseid}}"
+                               class="btn btn-outline-primary {{#isactive}}active{{/isactive}}">
+                                {{label}}
+                            </a>
+                            {{/presets}}
+                        </div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-end gap-2 flex-wrap">
+                    <div>
+                        <label for="starttime" class="form-label small mb-0">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="starttime" name="starttime" class="form-control form-control-sm"
+                               value="{{starttime_display}}" style="width:140px">
+                    </div>
+                    <div>
+                        <label for="endtime" class="form-label small mb-0">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="endtime" name="endtime" class="form-control form-control-sm"
+                               value="{{endtime_display}}" style="width:140px">
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button type="submit" class="btn btn-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                        {{#has_export}}
+                        <a href="?export=csv&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;quizid={{quizid}}&amp;courseid={{courseid}}&amp;studentsearch={{studentsearch}}"
+                           class="btn btn-outline-success btn-sm">
+                            {{#str}}export_csv, local_ai_programming_assistant{{/str}}
+                        </a>
+                        {{/has_export}}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{#quizid}}
+    <div class="alert alert-info mb-3">
+        {{#str}}stats_quiz, local_ai_programming_assistant{{/str}}: {{currentquizname}}
+        <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{#courseid}}&amp;courseid={{courseid}}{{/courseid}}" class="ms-2">{{#str}}stats_all_quizzes, local_ai_programming_assistant{{/str}}</a>
+    </div>
+    {{/quizid}}
+
+    {{^has_export}}
+    <div class="alert alert-info mb-3" role="alert">
+        {{#str}}stats_no_data, local_ai_programming_assistant{{/str}}
+    </div>
+    {{/has_export}}
+
+    {{#has_export}}
+    <div class="ai-programming-assistant-stats-questions mt-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>{{#str}}stats_top_questions, local_ai_programming_assistant{{/str}}</span>
+                <small class="text-muted">{{qtotalcount}} {{#str}}stats_question, local_ai_programming_assistant{{/str}}</small>
+            </div>
+            <form id="qdeleteform" method="post" action="{{{q_delete_action_url}}}">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width:30px"><input type="checkbox" id="qselectall" title="{{#str}}conversation_delete_select_all, local_ai_programming_assistant{{/str}}"></th>
+                            <th>
+                                {{#str}}stats_question, local_ai_programming_assistant{{/str}}
+                            </th>
+                            <th>
+                                {{#str}}stats_question_name, local_ai_programming_assistant{{/str}}
+                            </th>
+                            <th>
+                                <a href="{{{qsorturls.total_requests}}}" class="text-decoration-none text-reset">
+                                    {{#str}}stats_conversation_count, local_ai_programming_assistant{{/str}}
+                                    {{#q_total_requests_asc}} ▲{{/q_total_requests_asc}}
+                                    {{#q_total_requests_desc}} ▼{{/q_total_requests_desc}}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{{qsorturls.last_timecreated}}}" class="text-decoration-none text-reset">
+                                    {{#str}}stats_last_interaction, local_ai_programming_assistant{{/str}}
+                                    {{#q_last_timecreated_asc}} ▲{{/q_last_timecreated_asc}}
+                                    {{#q_last_timecreated_desc}} ▼{{/q_last_timecreated_desc}}
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#topquestions}}
+                        <tr>
+                            <td><input type="checkbox" value="{{questionid}}" class="q-select"></td>
+                            <td><span class="fw-bold">{{questionid}}</span></td>
+                            <td>{{questionname}}</td>
+                            <td>
+                                <a href="{{wwwroot}}/local/ai_programming_assistant/conversation_list.php?questionid={{questionid}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                                   class="text-decoration-none" title="{{#str}}stats_view_question_conversations, local_ai_programming_assistant{{/str}}">
+                                    {{total_requests}}
+                                </a>
+                                <a href="{{wwwroot}}/local/ai_programming_assistant/asked_questions.php?questionid={{questionid}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                                   class="badge bg-info text-white ms-1 align-middle" title="{{#str}}asked_questions_view_question, local_ai_programming_assistant{{/str}}">
+                                    {{#str}}asked_questions_short, local_ai_programming_assistant{{/str}}
+                                </a>
+                            </td>
+                            <td>{{last_timecreated_str}}</td>
+                        </tr>
+                        {{/topquestions}}
+                        {{#has_questiontotals}}
+                        <tr class="table-secondary fw-bold">
+                            <td></td>
+                            <td colspan="2">{{#str}}stats_total, local_ai_programming_assistant{{/str}}</td>
+                            <td>{{questiontotals.total_requests}}</td>
+                            <td>-</td>
+                        </tr>
+                        {{/has_questiontotals}}
+                        {{^topquestions}}
+                        <tr>
+                            <td colspan="5" class="text-center">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</td>
+                        </tr>
+                        {{/topquestions}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">
+                        {{#qhas_pagination}}{{qpagestartitem}} - {{qpageenditem}} / {{/qhas_pagination}}{{qtotalcount}}
+                    </small>
+                    <select class="form-select form-select-sm" style="width:auto" onchange="if(this.value)window.location.href=this.value">
+                        {{#qperpageoptions}}
+                        <option value="{{{url}}}" {{#selected}}selected{{/selected}}>{{value}}</option>
+                        {{/qperpageoptions}}
+                    </select>
+                    <button type="button" id="qdeletebtn" class="btn btn-danger btn-sm" disabled>
+                        {{#str}}stats_question_delete_btn, local_ai_programming_assistant{{/str}}
+                    </button>
+                </div>
+                {{#qhas_pagination}}
+                <nav aria-label="{{#str}}stats_questions_pagination, local_ai_programming_assistant{{/str}}">
+                    <ul class="pagination pagination-sm mb-0">
+                        {{#qhas_previous}}
+                        <li class="page-item"><a class="page-link" href="{{{qprevurl}}}">&laquo;</a></li>
+                        {{/qhas_previous}}
+                        {{^qhas_previous}}
+                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                        {{/qhas_previous}}
+                        {{#qpagination}}
+                        <li class="page-item {{#is_active}}active{{/is_active}}">
+                            <a class="page-link" href="{{{url}}}">{{page}}</a>
+                        </li>
+                        {{/qpagination}}
+                        {{#qhas_next}}
+                        <li class="page-item"><a class="page-link" href="{{{qnexturl}}}">&raquo;</a></li>
+                        {{/qhas_next}}
+                        {{^qhas_next}}
+                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                        {{/qhas_next}}
+                    </ul>
+                </nav>
+                {{/qhas_pagination}}
+            </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="ai-programming-assistant-stats-students mt-4">
+        <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <span>{{#str}}stats_student_usage, local_ai_programming_assistant{{/str}}</span>
+                    <small class="text-muted ms-2">{{stotalcount}} {{#str}}stats_user, local_ai_programming_assistant{{/str}}</small>
+                </div>
+                <form method="get" action="" class="d-flex gap-1">
+                    <input type="hidden" name="starttime" value="{{starttime_display}}">
+                    <input type="hidden" name="endtime" value="{{endtime_display}}">
+                    {{#quizid}}
+                    <input type="hidden" name="quizid" value="{{quizid}}">
+                    {{/quizid}}
+                    {{#courseid}}
+                    <input type="hidden" name="courseid" value="{{courseid}}">
+                    {{/courseid}}
+                    <input type="hidden" name="qpage" value="{{qpage}}">
+                    <input type="hidden" name="qsort" value="{{qsort}}">
+                    <input type="hidden" name="qorder" value="{{qorder}}">
+                    <input type="hidden" name="ssort" value="{{ssort}}">
+                    <input type="hidden" name="sorder" value="{{sorder}}">
+                    <input type="text" name="studentsearch" class="form-control form-control-sm"
+                           style="width:160px" placeholder="{{#str}}stats_student_search_placeholder, local_ai_programming_assistant{{/str}}"
+                           value="{{studentsearch}}">
+                    <button type="submit" class="btn btn-outline-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                    {{#studentsearch}}
+                    <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}{{#courseid}}&amp;courseid={{courseid}}{{/courseid}}"
+                       class="btn btn-outline-secondary btn-sm">{{#str}}clear, local_ai_programming_assistant{{/str}}</a>
+                    {{/studentsearch}}
+                </form>
+            </div>
+            <form id="sdeleteform" method="post" action="{{{s_delete_action_url}}}">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width:30px"><input type="checkbox" id="sselectall" title="{{#str}}conversation_delete_select_all, local_ai_programming_assistant{{/str}}"></th>
+                            <th>
+                                {{#str}}stats_user, local_ai_programming_assistant{{/str}}
+                            </th>
+                            <th>
+                                <a href="{{{ssorturls.total_requests}}}" class="text-decoration-none text-reset">
+                                    {{#str}}stats_conversation_count, local_ai_programming_assistant{{/str}}
+                                    {{#s_total_requests_asc}} ▲{{/s_total_requests_asc}}
+                                    {{#s_total_requests_desc}} ▼{{/s_total_requests_desc}}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{{ssorturls.unique_questions}}}" class="text-decoration-none text-reset">
+                                    {{#str}}stats_unique_questions, local_ai_programming_assistant{{/str}}
+                                    {{#s_unique_questions_asc}} ▲{{/s_unique_questions_asc}}
+                                    {{#s_unique_questions_desc}} ▼{{/s_unique_questions_desc}}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="{{{ssorturls.last_timecreated}}}" class="text-decoration-none text-reset">
+                                    {{#str}}stats_last_interaction, local_ai_programming_assistant{{/str}}
+                                    {{#s_last_timecreated_asc}} ▲{{/s_last_timecreated_asc}}
+                                    {{#s_last_timecreated_desc}} ▼{{/s_last_timecreated_desc}}
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#studentstats}}
+                        <tr>
+                                <td><input type="checkbox" value="{{userid}}" class="s-select"></td>
+                                <td>
+                                    {{fullname}}
+                                    <a href="{{wwwroot}}/local/ai_programming_assistant/asked_questions.php?userid={{userid}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                                       class="badge bg-info text-white ms-1 align-middle" title="{{#str}}asked_questions_view_student, local_ai_programming_assistant{{/str}}">
+                                        {{#str}}asked_questions_short, local_ai_programming_assistant{{/str}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{wwwroot}}/local/ai_programming_assistant/conversation_list.php?userid={{userid}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                                       class="text-decoration-none" title="{{#str}}stats_view_user_conversations, local_ai_programming_assistant{{/str}}">
+                                        {{total_requests}}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{{wwwroot}}/local/ai_programming_assistant/student_questions.php?userid={{userid}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                                       class="text-decoration-none" title="{{#str}}stats_view_user_questions, local_ai_programming_assistant{{/str}}">
+                                        {{unique_questions}}
+                                    </a>
+                                </td>
+                                <td>{{last_timecreated_str}}</td>
+                            </tr>
+                        {{/studentstats}}
+                        {{#has_studenttotals}}
+                        <tr class="table-secondary fw-bold">
+                            <td></td>
+                            <td>{{#str}}stats_total, local_ai_programming_assistant{{/str}}</td>
+                            <td>{{studenttotals.total_requests}}</td>
+                            <td>-</td>
+                            <td>-</td>
+                        </tr>
+                        {{/has_studenttotals}}
+                        {{^studentstats}}
+                        <tr>
+                            <td colspan="5" class="text-center">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</td>
+                        </tr>
+                        {{/studentstats}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">
+                        {{#shas_pagination}}{{spagestartitem}} - {{spageenditem}} / {{/shas_pagination}}{{stotalcount}}
+                    </small>
+                    <select class="form-select form-select-sm" style="width:auto" onchange="if(this.value)window.location.href=this.value">
+                        {{#sperpageoptions}}
+                        <option value="{{{url}}}" {{#selected}}selected{{/selected}}>{{value}}</option>
+                        {{/sperpageoptions}}
+                    </select>
+                    <button type="button" id="sdeletebtn" class="btn btn-danger btn-sm" disabled>
+                        {{#str}}stats_student_delete_btn, local_ai_programming_assistant{{/str}}
+                    </button>
+                </div>
+                {{#shas_pagination}}
+                <nav aria-label="{{#str}}stats_student_stats_pagination, local_ai_programming_assistant{{/str}}">
+                    <ul class="pagination pagination-sm mb-0">
+                        {{#shas_previous}}
+                        <li class="page-item"><a class="page-link" href="{{{sprevurl}}}">&laquo;</a></li>
+                        {{/shas_previous}}
+                        {{^shas_previous}}
+                        <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+                        {{/shas_previous}}
+                        {{#spagination}}
+                        <li class="page-item {{#is_active}}active{{/is_active}}">
+                            <a class="page-link" href="{{{url}}}">{{page}}</a>
+                        </li>
+                        {{/spagination}}
+                        {{#shas_next}}
+                        <li class="page-item"><a class="page-link" href="{{{snexturl}}}">&raquo;</a></li>
+                        {{/shas_next}}
+                        {{^shas_next}}
+                        <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+                        {{/shas_next}}
+                    </ul>
+                </nav>
+                {{/shas_pagination}}
+            </div>
+            </form>
+        </div>
+    </div>
+    {{/has_export}}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function setupDeleteForm(formId, selectAllId, deleteBtnId, checkboxClass, recordidsName) {
+            var form = document.getElementById(formId);
+            if (!form) return;
+            var selectAll = document.getElementById(selectAllId);
+            var deleteBtn = document.getElementById(deleteBtnId);
+
+            function getCheckboxes() {
+                return form.querySelectorAll('.' + checkboxClass);
+            }
+            function getCheckedCount() {
+                return form.querySelectorAll('.' + checkboxClass + ':checked').length;
+            }
+            function updateBtn() {
+                if (deleteBtn) deleteBtn.disabled = getCheckedCount() === 0;
+            }
+
+            if (selectAll) {
+                selectAll.addEventListener('change', function() {
+                    getCheckboxes().forEach(function(cb) { cb.checked = selectAll.checked; });
+                    updateBtn();
+                });
+            }
+            form.addEventListener('change', function(e) {
+                if (e.target && e.target.classList.contains(checkboxClass)) {
+                    var total = getCheckboxes().length;
+                    var checked = getCheckedCount();
+                    if (selectAll) selectAll.checked = total === checked && total > 0;
+                    updateBtn();
+                }
+            });
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function() {
+                    var count = getCheckedCount();
+                    if (count === 0) return;
+                    var confirmMsg = {{{confirm_delete_msg_json}}};
+                    confirmMsg = confirmMsg.replace('__COUNT__', count);
+                    if (!confirm(confirmMsg)) return;
+                    var ids = [];
+                    getCheckboxes().forEach(function(cb) {
+                        if (cb.checked) ids.push(cb.value);
+                    });
+                    var actionInput = document.createElement('input');
+                    actionInput.type = 'hidden';
+                    actionInput.name = 'action';
+                    actionInput.value = 'delete';
+                    form.appendChild(actionInput);
+                    var idsInput = document.createElement('input');
+                    idsInput.type = 'hidden';
+                    idsInput.name = 'recordids';
+                    idsInput.value = ids.join(',');
+                    form.appendChild(idsInput);
+                    var sesskeyInput = document.createElement('input');
+                    sesskeyInput.type = 'hidden';
+                    sesskeyInput.name = 'sesskey';
+                    sesskeyInput.value = M.cfg.sesskey;
+                    form.appendChild(sesskeyInput);
+                    form.submit();
+                });
+            }
+        }
+        setupDeleteForm('qdeleteform', 'qselectall', 'qdeletebtn', 'q-select', 'recordids');
+        setupDeleteForm('sdeleteform', 'sselectall', 'sdeletebtn', 's-select', 'recordids');
+    });
+    </script>
+</div>

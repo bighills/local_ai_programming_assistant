@@ -1,0 +1,201 @@
+{{!
+    AI 编程助手 - 学生提问记录页模板（一级页面）
+
+    展示学生向 AI 提问的原始问题列表，支持按题目、学生、策略模式、
+    测验、课程、时间范围和学生姓名/用户名搜索过滤，分页查看与 CSV 导出。
+
+    @template local_ai_programming_assistant/asked_questions
+    @author zfl
+}}
+<div class="ai-programming-assistant-asked-questions-page">
+
+    {{> local_ai_programming_assistant/nav_tabs}}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{{{backurl}}}" class="btn btn-outline-secondary btn-sm">
+            &laquo; {{#str}}backtostats, local_ai_programming_assistant{{/str}}
+        </a>
+    </div>
+
+    {{#has_filter}}
+    <div class="alert alert-info mb-3 d-flex justify-content-between align-items-center">
+        <div>
+            {{#has_question_filter}}
+            <span class="badge bg-primary me-1">{{#str}}stats_question, local_ai_programming_assistant{{/str}}: {{questionname}} (#{{questionid}})</span>
+            {{/has_question_filter}}
+            {{#has_user_filter}}
+            <span class="badge bg-success me-1">{{#str}}stats_user, local_ai_programming_assistant{{/str}}: {{studentname}} (#{{userid}})</span>
+            {{/has_user_filter}}
+            {{#has_actiontype_filter}}
+            <span class="badge bg-warning text-dark me-1">{{#str}}conversation_list_actiontype, local_ai_programming_assistant{{/str}}: {{actiontype}}</span>
+            {{/has_actiontype_filter}}
+            {{#has_quiz_filter}}
+            <span class="badge bg-info me-1">{{#str}}stats_quiz, local_ai_programming_assistant{{/str}}: {{quizname}} (#{{quizid}})</span>
+            {{/has_quiz_filter}}
+            {{#has_course_filter}}
+            <span class="badge bg-dark me-1">{{#str}}stats_course, local_ai_programming_assistant{{/str}}: {{coursename}} (#{{courseid}})</span>
+            {{/has_course_filter}}
+            {{#search}}
+            <span class="badge bg-secondary me-1">{{#str}}conversation_list_search_hint, local_ai_programming_assistant{{/str}}: {{search}}</span>
+            {{/search}}
+        </div>
+        <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+           class="btn btn-outline-secondary btn-sm">{{#str}}clear, local_ai_programming_assistant{{/str}}</a>
+    </div>
+    {{/has_filter}}
+
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="get" action="" class="d-flex justify-content-between align-items-start gap-3">
+                <div class="d-flex align-items-end gap-2 flex-wrap">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="{{#str}}stats_date_presets, local_ai_programming_assistant{{/str}}">
+                        {{#presets}}
+                        <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}"
+                           class="btn btn-outline-primary {{#isactive}}active{{/isactive}}">
+                            {{label}}
+                        </a>
+                        {{/presets}}
+                    </div>
+                </div>
+                <div class="d-flex align-items-end gap-2 flex-wrap">
+                    <div>
+                        <label for="starttime" class="form-label small mb-0">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="starttime" name="starttime" class="form-control form-control-sm"
+                               value="{{starttime_display}}" style="width:140px">
+                    </div>
+                    <div>
+                        <label for="endtime" class="form-label small mb-0">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="endtime" name="endtime" class="form-control form-control-sm"
+                               value="{{endtime_display}}" style="width:140px">
+                    </div>
+                    <div>
+                        <label for="actiontype" class="form-label small mb-0">{{#str}}conversation_list_actiontype, local_ai_programming_assistant{{/str}}</label>
+                        <select id="actiontype" name="actiontype" class="form-select form-select-sm">
+                            <option value="">{{#str}}stats_all_modes, local_ai_programming_assistant{{/str}}</option>
+                            <option value="question_analysis" {{#actiontype_question_analysis}}selected{{/actiontype_question_analysis}}>{{#str}}mode_question_analysis, local_ai_programming_assistant{{/str}}</option>
+                            <option value="idea_organization" {{#actiontype_idea_organization}}selected{{/actiontype_idea_organization}}>{{#str}}mode_idea_organization, local_ai_programming_assistant{{/str}}</option>
+                            <option value="code_debugging" {{#actiontype_code_debugging}}selected{{/actiontype_code_debugging}}>{{#str}}mode_code_debugging, local_ai_programming_assistant{{/str}}</option>
+                            <option value="free" {{#actiontype_free}}selected{{/actiontype_free}}>{{#str}}mode_free, local_ai_programming_assistant{{/str}}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="search" class="form-label small mb-0">{{#str}}conversation_list_search_hint, local_ai_programming_assistant{{/str}}</label>
+                        <input type="text" id="search" name="search" class="form-control form-control-sm"
+                               value="{{search}}" placeholder="{{#str}}conversation_list_search_hint, local_ai_programming_assistant{{/str}}" style="width:180px">
+                    </div>
+                    {{#has_question_filter}}
+                    <input type="hidden" name="questionid" value="{{questionid}}">
+                    {{/has_question_filter}}
+                    {{#has_user_filter}}
+                    <input type="hidden" name="userid" value="{{userid}}">
+                    {{/has_user_filter}}
+                    {{#has_quiz_filter}}
+                    <input type="hidden" name="quizid" value="{{quizid}}">
+                    {{/has_quiz_filter}}
+                    {{#has_course_filter}}
+                    <input type="hidden" name="courseid" value="{{courseid}}">
+                    {{/has_course_filter}}
+                    <button type="submit" class="btn btn-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{^hasdata}}
+    <div class="alert alert-warning">{{#str}}asked_questions_no_data, local_ai_programming_assistant{{/str}}</div>
+    {{/hasdata}}
+
+    {{#hasdata}}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>{{#str}}asked_questions_page_title, local_ai_programming_assistant{{/str}}</span>
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-muted">{{totalrecords}} {{#str}}chat_detail_total, local_ai_programming_assistant{{/str}}</small>
+                <a href="{{{exporturl}}}" class="btn btn-outline-success btn-sm">{{#str}}export_csv, local_ai_programming_assistant{{/str}}</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>{{#str}}csv_student, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}stats_question, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}conversation_list_actiontype, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}csv_question_content, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}stats_quiz, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}stats_time, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}question_detail_action, local_ai_programming_assistant{{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#records}}
+                    <tr>
+                        <td class="text-nowrap">
+                            <span class="fw-bold">{{fullname}}</span>
+                            <br><small class="text-muted">{{username}}</small>
+                        </td>
+                        <td style="max-width:260px">
+                            {{#isfree}}
+                            <span class="badge bg-light text-secondary border">{{#str}}free_stats_free_chat, local_ai_programming_assistant{{/str}}</span>
+                            {{/isfree}}
+                            {{^isfree}}
+                            <span class="text-wrap d-inline-block">{{questionname}}</span>
+                            {{/isfree}}
+                            {{#quizname}}
+                            <br><small class="text-muted">{{quizname}}</small>
+                            {{/quizname}}
+                        </td>
+                        <td><span class="badge bg-light text-primary border border-primary">{{mode_label}}</span></td>
+                        <td style="max-width:400px">
+                            <span class="d-inline-block text-wrap" title="{{question}}">{{question_short}}</span>
+                        </td>
+                        <td>
+                            {{#coursename}}
+                            <span class="text-muted small">{{coursename}}</span>
+                            {{/coursename}}
+                            {{^coursename}}
+                            <span class="text-muted small">-</span>
+                            {{/coursename}}
+                        </td>
+                        <td class="text-nowrap text-muted small">{{timecreated_str}}</td>
+                        <td>
+                            <a href="{{{detailurl}}}" class="btn btn-sm btn-outline-primary">
+                                {{#str}}question_detail_view_detail, local_ai_programming_assistant{{/str}}
+                            </a>
+                        </td>
+                    </tr>
+                    {{/records}}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-muted">{{totalrecords}} {{#str}}chat_detail_total, local_ai_programming_assistant{{/str}}</small>
+                <select class="form-select form-select-sm" style="width:auto" onchange="if(this.value)window.location.href=this.value">
+                    {{#perpageoptions}}
+                    <option value="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}&amp;perpage={{value}}" {{#selected}}selected{{/selected}}>{{value}}</option>
+                    {{/perpageoptions}}
+                </select>
+            </div>
+            {{#hasmulti}}
+            <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item {{#pageone}}disabled{{/pageone}}">
+                        <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}&amp;perpage={{perpage}}&amp;page={{prevpage}}">&laquo;</a>
+                    </li>
+                    {{#pagenums}}
+                    <li class="page-item {{#active}}active{{/active}}">
+                        <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}&amp;perpage={{perpage}}&amp;page={{num}}">{{num}}</a>
+                    </li>
+                    {{/pagenums}}
+                    <li class="page-item {{#pagelast}}disabled{{/pagelast}}">
+                        <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}&amp;perpage={{perpage}}&amp;page={{nextpage}}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+            {{/hasmulti}}
+        </div>
+    </div>
+    {{/hasdata}}
+
+</div>

@@ -1,0 +1,269 @@
+{{!
+    AI 编程助手 - 会话列表页模板（一级页面）
+
+    展示所有 AI 会话记录，按时间从近到远排列。
+    支持时间范围筛选、试题筛选、学生筛选、测验筛选和分页。
+    点击某条记录可跳转到会话详情页。
+
+    @template local_ai_programming_assistant/conversation_list
+    @author zfl
+}}
+<div class="ai-programming-assistant-conversation-list-page">
+
+    {{> local_ai_programming_assistant/nav_tabs}}
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <a href="{{{backtostatsurl}}}" class="btn btn-outline-secondary btn-sm">
+                &laquo; {{#str}}backtostats, local_ai_programming_assistant{{/str}}
+            </a>
+            <a href="{{{recentquizchatsurl}}}" class="btn btn-outline-info btn-sm ms-2">
+                {{#str}}recent_quiz_chats_page_title, local_ai_programming_assistant{{/str}}
+            </a>
+            <a href="{{{recentfreechatsurl}}}" class="btn btn-outline-info btn-sm ms-2">
+                {{#str}}recent_free_chats_page_title, local_ai_programming_assistant{{/str}}
+            </a>
+        </div>
+    </div>
+
+    {{#has_filter}}
+    <div class="alert alert-info mb-3 d-flex justify-content-between align-items-center">
+        <div>
+            {{#has_question_filter}}
+            <span class="badge bg-primary me-1">{{#str}}stats_question, local_ai_programming_assistant{{/str}}: {{questionname}} (#{{questionid}})</span>
+            {{/has_question_filter}}
+            {{#has_user_filter}}
+            <span class="badge bg-success me-1">{{#str}}stats_user, local_ai_programming_assistant{{/str}}: {{studentname}} (#{{userid}})</span>
+            {{/has_user_filter}}
+            {{#has_quiz_filter}}
+            <span class="badge bg-info me-1">{{#str}}stats_quiz, local_ai_programming_assistant{{/str}}: {{quizname}} (#{{quizid}})</span>
+            {{/has_quiz_filter}}
+            {{#has_actiontype_filter}}
+            <span class="badge bg-warning text-dark me-1">{{#str}}conversation_list_actiontype, local_ai_programming_assistant{{/str}}: {{actiontype_label}}</span>
+            {{/has_actiontype_filter}}
+            {{#has_contextid_filter}}
+            <span class="badge bg-dark me-1">{{#str}}conversation_list_context, local_ai_programming_assistant{{/str}}: #{{contextid}}</span>
+            {{/has_contextid_filter}}
+            {{#search}}
+            <span class="badge bg-secondary me-1">{{#str}}conversation_list_search_hint, local_ai_programming_assistant{{/str}}: {{search}}</span>
+            {{/search}}
+        </div>
+        <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+           class="btn btn-outline-secondary btn-sm">{{#str}}clear, local_ai_programming_assistant{{/str}}</a>
+    </div>
+    {{/has_filter}}
+
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="get" action="" class="d-flex justify-content-between align-items-start gap-3">
+                <div class="d-flex align-items-end gap-2 flex-wrap">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="{{#str}}stats_date_presets, local_ai_programming_assistant{{/str}}">
+                        {{#presets}}
+                        <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}"
+                           class="btn btn-outline-primary {{#isactive}}active{{/isactive}}">
+                            {{label}}
+                        </a>
+                        {{/presets}}
+                    </div>
+                </div>
+                <div class="d-flex align-items-end gap-2 flex-wrap">
+                    <div>
+                        <label for="starttime" class="form-label small mb-0">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="starttime" name="starttime" class="form-control form-control-sm"
+                               value="{{starttime_display}}" style="width:140px">
+                    </div>
+                    <div>
+                        <label for="endtime" class="form-label small mb-0">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="endtime" name="endtime" class="form-control form-control-sm"
+                               value="{{endtime_display}}" style="width:140px">
+                    </div>
+                    <div>
+                        <label for="search" class="form-label small mb-0">{{#str}}conversation_list_search_hint, local_ai_programming_assistant{{/str}}</label>
+                        <input type="text" id="search" name="search" class="form-control form-control-sm"
+                               value="{{search}}" placeholder="{{#str}}conversation_list_search_hint, local_ai_programming_assistant{{/str}}" style="width:180px">
+                    </div>
+                    {{#has_question_filter}}
+                    <input type="hidden" name="questionid" value="{{questionid}}">
+                    {{/has_question_filter}}
+                    {{#has_user_filter}}
+                    <input type="hidden" name="userid" value="{{userid}}">
+                    {{/has_user_filter}}
+                    {{#has_quiz_filter}}
+                    <input type="hidden" name="quizid" value="{{quizid}}">
+                    {{/has_quiz_filter}}
+                    {{#has_actiontype_filter}}
+                    <input type="hidden" name="actiontype" value="{{actiontype}}">
+                    {{/has_actiontype_filter}}
+                    {{#has_contextid_filter}}
+                    <input type="hidden" name="contextid" value="{{contextid}}">
+                    {{/has_contextid_filter}}
+                    {{#has_order_asc}}
+                    <input type="hidden" name="order" value="asc">
+                    {{/has_order_asc}}
+                    <button type="submit" class="btn btn-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{^hasdata}}
+    <div class="alert alert-warning">{{#str}}conversation_no_data, local_ai_programming_assistant{{/str}}</div>
+    {{/hasdata}}
+
+    {{#hasdata}}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <span>{{#str}}conversation_list_page_title, local_ai_programming_assistant{{/str}}</span>
+            <small class="text-muted">{{totalrecords}} {{#str}}chat_detail_total, local_ai_programming_assistant{{/str}}</small>
+        </div>
+        <form id="conversationdeleteform" method="post" action="{{{delete_action_url}}}">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:30px"><input type="checkbox" id="convselectall" title="{{#str}}conversation_delete_select_all, local_ai_programming_assistant{{/str}}"></th>
+                        <th>{{#str}}conversation_list_student, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}conversation_list_context, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}conversation_list_pagetype, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}recent_quiz_chats_course, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}conversation_list_actiontype, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}conversation_list_messagecount, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}conversation_list_starttime, local_ai_programming_assistant{{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#conversations}}
+                    <tr>
+                        <td><input type="checkbox" value="{{id}}" class="conv-select"></td>
+                        <td>
+                            <span class="fw-bold">{{studentname}}</span>
+                            <br><small class="text-muted">{{username}}</small>
+                        </td>
+                        <td>
+                            {{#context_url}}
+                            <a href="{{{context_url}}}" class="text-decoration-none" target="_blank">
+                                <small>{{context_name}}</small>
+                            </a>
+                            {{/context_url}}
+                            {{^context_url}}
+                            <small>{{context_name}}</small>
+                            {{/context_url}}
+                        </td>
+                        <td>{{pagetype_label}}</td>
+                        <td>
+                            {{#coursename}}
+                            <span class="text-muted small">{{coursename}}</span>
+                            {{/coursename}}
+                            {{^coursename}}
+                            <span class="text-muted small">-</span>
+                            {{/coursename}}
+                        </td>
+                        <td><span class="badge bg-light text-primary border border-primary">{{actiontype_label}}</span></td>
+                        <td class="text-center">
+                            <a href="{{{detailurl}}}" class="text-decoration-none">
+                                <span class="badge bg-info">{{messagecount}}</span>
+                            </a>
+                        </td>
+                        <td class="text-nowrap">{{starttime_str}}</td>
+                    </tr>
+                    {{/conversations}}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <small class="text-muted">{{totalrecords}} {{#str}}chat_detail_total, local_ai_programming_assistant{{/str}}</small>
+                <select class="form-select form-select-sm" style="width:auto" onchange="if(this.value)window.location.href=this.value">
+                    {{#perpageoptions}}
+                    <option value="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}&amp;perpage={{value}}" {{#selected}}selected{{/selected}}>{{value}}</option>
+                    {{/perpageoptions}}
+                </select>
+                <button type="button" id="convdeletebtn" class="btn btn-danger btn-sm" disabled>
+                    {{#str}}conversation_delete_button, local_ai_programming_assistant{{/str}}
+                </button>
+            </div>
+            {{#hasmulti}}
+            <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item {{#pageone}}disabled{{/pageone}}">
+                        <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}&amp;perpage={{perpage}}&amp;page={{prevpage}}">&laquo;</a>
+                    </li>
+                    {{#pagenums}}
+                    <li class="page-item {{#active}}active{{/active}}">
+                        <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}&amp;perpage={{perpage}}&amp;page={{num}}">{{num}}</a>
+                    </li>
+                    {{/pagenums}}
+                    <li class="page-item {{#pagelast}}disabled{{/pagelast}}">
+                        <a class="page-link" href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{{filterurlparams}}}&amp;perpage={{perpage}}&amp;page={{nextpage}}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+            {{/hasmulti}}
+        </div>
+        </form>
+    </div>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.getElementById('conversationdeleteform');
+        if (!form) return;
+        var selectAll = document.getElementById('convselectall');
+        var deleteBtn = document.getElementById('convdeletebtn');
+
+        function getCheckboxes() {
+            return form.querySelectorAll('.conv-select');
+        }
+        function getCheckedCount() {
+            return form.querySelectorAll('.conv-select:checked').length;
+        }
+        function updateBtn() {
+            if (deleteBtn) deleteBtn.disabled = getCheckedCount() === 0;
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                getCheckboxes().forEach(function(cb) { cb.checked = selectAll.checked; });
+                updateBtn();
+            });
+        }
+        form.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('conv-select')) {
+                var total = getCheckboxes().length;
+                var checked = getCheckedCount();
+                if (selectAll) selectAll.checked = total === checked && total > 0;
+                updateBtn();
+            }
+        });
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                var count = getCheckedCount();
+                if (count === 0) return;
+                var confirmMsg = {{{confirm_delete_msg_json}}};
+                confirmMsg = confirmMsg.replace('__COUNT__', count);
+                if (!confirm(confirmMsg)) return;
+                var ids = [];
+                getCheckboxes().forEach(function(cb) {
+                    if (cb.checked) ids.push(cb.value);
+                });
+                var actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                form.appendChild(actionInput);
+                var idsInput = document.createElement('input');
+                idsInput.type = 'hidden';
+                idsInput.name = 'conversationids';
+                idsInput.value = ids.join(',');
+                form.appendChild(idsInput);
+                var sesskeyInput = document.createElement('input');
+                sesskeyInput.type = 'hidden';
+                sesskeyInput.name = 'sesskey';
+                sesskeyInput.value = M.cfg.sesskey;
+                form.appendChild(sesskeyInput);
+                form.submit();
+            });
+        }
+    });
+    </script>
+    {{/hasdata}}
+
+</div>

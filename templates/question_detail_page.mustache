@@ -1,0 +1,206 @@
+{{!
+    AI 编程助手 - 题目详情页面模板
+
+    显示单个试题的 AI 辅助统计详情，包括学生使用列表和对话记录。
+
+    @template local_ai_programming_assistant/question_detail_page
+    @author zfl
+}}
+<div class="ai-programming-assistant-question-detail-page">
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" action="" class="row g-3">
+                <div class="col-md-2">
+                    <label for="quizid" class="form-label">{{#str}}quiz_stats_quizid, local_ai_programming_assistant{{/str}}</label>
+                    <input type="number" id="quizid" name="quizid" class="form-control" value="{{quizid}}" min="1">
+                </div>
+                <div class="col-md-2">
+                    <label for="questionid" class="form-label">{{#str}}stats_question, local_ai_programming_assistant{{/str}}</label>
+                    <input type="number" id="questionid" name="questionid" class="form-control" value="{{questionid}}" min="1">
+                </div>
+                <div class="col-md-2">
+                    <label for="starttime" class="form-label">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                    <input type="date" id="starttime" name="starttime" class="form-control" value="{{starttime_display}}">
+                </div>
+                <div class="col-md-2">
+                    <label for="endtime" class="form-label">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                    <input type="date" id="endtime" name="endtime" class="form-control" value="{{endtime_display}}">
+                </div>
+                {{#hasgroups}}
+                <div class="col-md-2">
+                    <label for="groupid" class="form-label">{{#str}}quiz_stats_group, local_ai_programming_assistant{{/str}}</label>
+                    <select id="groupid" name="groupid" class="form-control">
+                        <option value="0">{{#str}}quiz_stats_all_groups, local_ai_programming_assistant{{/str}}</option>
+                        {{#groups}}
+                        <option value="{{id}}" {{#selected}}selected{{/selected}}>{{name}}</option>
+                        {{/groups}}
+                    </select>
+                </div>
+                {{/hasgroups}}
+                <div class="col-md-{{#hasgroups}}2{{/hasgroups}}{{^hasgroups}}4{{/hasgroups}} d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                </div>
+            </form>
+            <div class="mt-2 d-flex gap-2">
+                <a href="{{backtostatsurl}}" class="btn btn-outline-secondary">{{#str}}backtostats, local_ai_programming_assistant{{/str}}</a>
+                {{#showbacktoquiz}}
+                <a href="{{backtoquizurl}}" class="btn btn-outline-secondary">{{#str}}backtoquiz, local_ai_programming_assistant{{/str}}</a>
+                {{/showbacktoquiz}}
+            </div>
+            {{#questionname}}
+            <div class="mt-2 p-2 bg-light rounded">
+                <strong>{{#str}}quiz_stats_quiz_name, local_ai_programming_assistant{{/str}}:</strong> {{quizname}}
+                <br>
+                <strong>{{#str}}stats_question_name, local_ai_programming_assistant{{/str}}:</strong> {{questionname}}
+            </div>
+            {{/questionname}}
+        </div>
+    </div>
+
+    {{#invalidquestion}}
+    <div class="alert alert-danger mt-3">{{#str}}question_detail_invalid, local_ai_programming_assistant{{/str}}</div>
+    {{/invalidquestion}}
+
+    {{#isstudentview}}
+    <div class="card mb-3">
+        <div class="card-header">
+            <div class="d-flex flex-wrap justify-content-between align-items-center">
+                <h5 class="mb-0">{{#str}}question_detail_student_view, local_ai_programming_assistant{{/str}}: {{studentname}} ({{studentusername}})</h5>
+                {{#actiontype_label}}
+                <span class="badge bg-info text-white ms-2">{{#str}}recent_quiz_chats_mode, local_ai_programming_assistant{{/str}}: {{actiontype_label}}</span>
+                {{/actiontype_label}}
+            </div>
+        </div>
+        <div class="card-body">
+            {{#hasdata}}
+            {{#userdetail}}
+            <div class="card mb-3 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <span class="badge bg-light text-primary border border-primary">{{#str}}stats_model, local_ai_programming_assistant{{/str}}: {{model}}</span>
+                            <span class="badge bg-light text-info border border-info ms-2">{{#str}}stats_action, local_ai_programming_assistant{{/str}}: {{mode}}</span>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <span class="text-muted">{{timecreated_str}}</span>
+                            {{#success}}
+                            <span class="badge bg-success ms-2">{{#str}}stats_success, local_ai_programming_assistant{{/str}}</span>
+                            {{/success}}
+                            {{^success}}
+                            <span class="badge bg-danger ms-2">{{#str}}stats_failed, local_ai_programming_assistant{{/str}}</span>
+                            {{/success}}
+                            <span class="badge bg-secondary ms-2">{{responsetime}} ms</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="mb-2 text-primary">{{#str}}question_detail_student_question, local_ai_programming_assistant{{/str}}</h6>
+                        <pre class="ai-source-code-pre">{{sourcecode}}</pre>
+                    </div>
+                    <div class="mb-3">
+                        <h6 class="mb-2 text-success">{{#str}}question_detail_feedback, local_ai_programming_assistant{{/str}}</h6>
+                        <div class="border p-3 rounded bg-light">{{{feedback}}}</div>
+                    </div>
+                    {{#has_conversations}}
+                    <div class="mt-3">
+                        <h6 class="mb-2 text-info">{{#str}}question_detail_conversations, local_ai_programming_assistant{{/str}}</h6>
+                        <div class="border p-3 rounded bg-light">
+                            {{#conversations}}
+                            <div class="mb-3 p-2 rounded {{#is_user}}bg-primary/10{{/is_user}}{{#is_assistant}}bg-success/10{{/is_assistant}}">
+                                <strong class="{{#is_user}}text-primary{{/is_user}}{{#is_assistant}}text-success{{/is_assistant}}">
+                                    {{#is_user}}{{#str}}question_detail_user, local_ai_programming_assistant{{/str}}{{/is_user}}
+                                    {{#is_assistant}}{{#str}}question_detail_assistant, local_ai_programming_assistant{{/str}}{{/is_assistant}}
+                                </strong>: {{timecreated_str}}
+                                <div class="ms-3 mt-1">{{#is_assistant}}{{{content}}}{{/is_assistant}}{{^is_assistant}}{{content}}{{/is_assistant}}</div>
+                            </div>
+                            {{/conversations}}
+                        </div>
+                    </div>
+                    {{/has_conversations}}
+                </div>
+            </div>
+            {{/userdetail}}
+            {{/hasdata}}
+            {{^hasdata}}
+            <div class="alert alert-warning">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</div>
+            {{/hasdata}}
+        </div>
+    </div>
+    {{/isstudentview}}
+
+    {{^isstudentview}}
+    {{#hasdata}}
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{#str}}question_detail_student_usage, local_ai_programming_assistant{{/str}}
+                {{#actiontype_label}}
+                <span class="badge bg-info text-white ms-2">{{#str}}recent_quiz_chats_mode, local_ai_programming_assistant{{/str}}: {{actiontype_label}}</span>
+                {{/actiontype_label}}
+            </h5>
+            <div class="d-flex gap-2 align-items-center">
+                <span class="badge bg-info">{{totalstudents}} {{#str}}question_detail_total_students, local_ai_programming_assistant{{/str}}</span>
+                <a href="{{backtostatsurl}}" class="btn btn-outline-secondary btn-sm">{{#str}}backtostats, local_ai_programming_assistant{{/str}}</a>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th>{{#str}}stats_user, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}recent_quiz_chats_mode, local_ai_programming_assistant{{/str}}</th>
+                        <th class="text-center">{{#str}}stats_total_requests, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}stats_time, local_ai_programming_assistant{{/str}}</th>
+                        <th>{{#str}}question_detail_action, local_ai_programming_assistant{{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#studentfollowups}}
+                    {{#modes}}
+                    <tr>
+                        <td>{{fullname}} ({{username}})</td>
+                        <td>
+                            <span class="badge bg-light text-info border border-info">{{mode_label}}</span>
+                        </td>
+                        <td class="text-center">{{entry_count}}</td>
+                        <td><span class="text-muted small">{{last_timecreated_str}}</span></td>
+                        <td>
+                            <a href="question_detail.php?quizid={{quizid}}&amp;questionid={{questionid}}&amp;userid={{userid}}&amp;actiontype={{actiontype}}{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}"
+                               class="btn btn-sm btn-outline-primary">
+                                {{#str}}question_detail_view_detail, local_ai_programming_assistant{{/str}}
+                            </a>
+                            <a href="asked_questions.php?questionid={{questionid}}&amp;userid={{userid}}&amp;actiontype={{actiontype}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                               class="btn btn-sm btn-outline-info">
+                                {{#str}}asked_questions_view_mode, local_ai_programming_assistant{{/str}}
+                            </a>
+                        </td>
+                    </tr>
+                    {{/modes}}
+                    {{/studentfollowups}}
+                </tbody>
+            </table>
+        </div>
+        {{#hasmulti}}
+        <div class="card-footer d-flex justify-content-end">
+            <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item {{#pageone}}disabled{{/pageone}}">
+                        <a class="page-link" href="?{{{baseurlparams}}}&amp;page={{prevpage}}" aria-label="{{#str}}previous{{/str}}">&laquo;</a>
+                    </li>
+                    {{#pagenums}}
+                    <li class="page-item {{#active}}active{{/active}}">
+                        <a class="page-link" href="?{{{baseurlparams}}}&amp;page={{num}}">{{num}}</a>
+                    </li>
+                    {{/pagenums}}
+                    <li class="page-item {{#pagelast}}disabled{{/pagelast}}">
+                        <a class="page-link" href="?{{{baseurlparams}}}&amp;page={{nextpage}}" aria-label="{{#str}}next{{/str}}">&raquo;</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+        {{/hasmulti}}
+    </div>
+    {{/hasdata}}
+    {{#shownodata}}
+    <div class="alert alert-warning mt-3">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</div>
+    {{/shownodata}}
+    {{/isstudentview}}
+</div>

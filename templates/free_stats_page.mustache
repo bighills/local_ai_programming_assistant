@@ -1,0 +1,317 @@
+{{!
+    AI 编程助手 - 自由模式（无题号）AI 反馈统计页面模板
+
+    展示无试题号关联的自由对话统计数据，包括概览、每日趋势、模型分布和学生排行。
+
+    @template local_ai_programming_assistant/free_stats_page
+    @author zfl
+}}
+<div class="ai-programming-assistant-free-stats-page">
+
+    {{> local_ai_programming_assistant/nav_tabs}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <span class="text-muted small fw-bold">
+                {{#str}}free_stats_page_title, local_ai_programming_assistant{{/str}}
+            </span>
+            <span class="mx-2 text-muted small">&gt;</span>
+            <a href="{{{recentfreechatsurl}}}" class="btn btn-outline-info btn-sm ms-2">
+                {{#str}}recent_free_chats_page_title, local_ai_programming_assistant{{/str}}
+            </a>
+        </div>
+    </div>
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <form method="get" action="" class="d-flex flex-wrap align-items-end gap-2">
+                <div>
+                    <div class="btn-group btn-group-sm" role="group" aria-label="{{#str}}stats_date_presets, local_ai_programming_assistant{{/str}}">
+                        {{#presets}}
+                        <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                           class="btn btn-outline-primary {{#isactive}}active{{/isactive}}">
+                            {{label}}
+                        </a>
+                        {{/presets}}
+                    </div>
+                </div>
+                <div>
+                    <label for="starttime" class="form-label small mb-0">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                    <input type="date" id="starttime" name="starttime" class="form-control form-control-sm"
+                           value="{{starttime_display}}" style="width:140px">
+                </div>
+                <div>
+                    <label for="endtime" class="form-label small mb-0">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                    <input type="date" id="endtime" name="endtime" class="form-control form-control-sm"
+                           value="{{endtime_display}}" style="width:140px">
+                </div>
+                <div class="d-flex gap-1">
+                    <button type="submit" class="btn btn-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                    {{#has_export}}
+                    <a href="?export=csv&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;studentsearch={{studentsearch}}"
+                       class="btn btn-outline-success btn-sm">
+                        {{#str}}export_csv, local_ai_programming_assistant{{/str}}
+                    </a>
+                    {{/has_export}}
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{^has_export}}
+    <div class="alert alert-info mb-3" role="alert">
+        {{#str}}stats_no_data, local_ai_programming_assistant{{/str}}
+    </div>
+    {{/has_export}}
+
+    {{#has_export}}
+
+    <div class="ai-programming-assistant-stats-details mt-4">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        {{#str}}stats_model_usage, local_ai_programming_assistant{{/str}}
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {{#stats.model_usage}}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{key}}
+                            <span class="badge bg-primary rounded-pill">{{value}}</span>
+                        </li>
+                        {{/stats.model_usage}}
+                        {{^stats.model_usage}}
+                        <li class="list-group-item">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</li>
+                        {{/stats.model_usage}}
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        {{#str}}free_stats_pagetype_distribution, local_ai_programming_assistant{{/str}}
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {{#stats.pagetype_usage}}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{key}}
+                            <span class="badge bg-secondary rounded-pill">{{value}}</span>
+                        </li>
+                        {{/stats.pagetype_usage}}
+                        {{^stats.pagetype_usage}}
+                        <li class="list-group-item">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</li>
+                        {{/stats.pagetype_usage}}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ai-programming-assistant-stats-students mt-4">
+        <div class="card">
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                    <span>{{#str}}stats_student_usage, local_ai_programming_assistant{{/str}}</span>
+                    <small class="text-muted ms-2">{{studentcount}} {{#str}}stats_user, local_ai_programming_assistant{{/str}}</small>
+                </div>
+                <form method="get" action="" class="d-flex gap-1">
+                    <input type="hidden" name="starttime" value="{{starttime_display}}">
+                    <input type="hidden" name="endtime" value="{{endtime_display}}">
+                    <input type="hidden" name="sort" value="{{sort}}">
+                    <input type="hidden" name="order" value="{{order}}">
+                    <input type="hidden" name="dpage" value="{{dpage}}">
+                    <input type="text" name="studentsearch" class="form-control form-control-sm"
+                           style="width:160px" placeholder="{{#str}}stats_student_search_placeholder, local_ai_programming_assistant{{/str}}"
+                           value="{{studentsearch}}">
+                    <button type="submit" class="btn btn-outline-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                    {{#studentsearch}}
+                    <a href="?starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;dpage={{dpage}}"
+                       class="btn btn-outline-secondary btn-sm">{{#str}}clear, local_ai_programming_assistant{{/str}}</a>
+                    {{/studentsearch}}
+                </form>
+            </div>
+            <form id="freedeleteform" method="post" action="{{{delete_action_url}}}">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th style="width:30px"><input type="checkbox" id="freeselectall" title="{{#str}}conversation_delete_select_all, local_ai_programming_assistant{{/str}}"></th>
+                                <th>
+                                    <a href="{{{sorturls.fullname}}}" class="text-decoration-none text-reset">
+                                        {{#str}}stats_user, local_ai_programming_assistant{{/str}}
+                                        {{#fullname_asc}} ▲{{/fullname_asc}}
+                                        {{#fullname_desc}} ▼{{/fullname_desc}}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{{sorturls.unique_pages}}}" class="text-decoration-none text-reset">
+                                        {{#str}}free_stats_pages, local_ai_programming_assistant{{/str}}
+                                        {{#unique_pages_asc}} ▲{{/unique_pages_asc}}
+                                        {{#unique_pages_desc}} ▼{{/unique_pages_desc}}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{{sorturls.total_requests}}}" class="text-decoration-none text-reset">
+                                        {{#str}}stats_conversation_count, local_ai_programming_assistant{{/str}}
+                                        {{#total_requests_asc}} ▲{{/total_requests_asc}}
+                                        {{#total_requests_desc}} ▼{{/total_requests_desc}}
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="{{{sorturls.last_timecreated}}}" class="text-decoration-none text-reset">
+                                        {{#str}}stats_last_interaction, local_ai_programming_assistant{{/str}}
+                                        {{#last_timecreated_asc}} ▲{{/last_timecreated_asc}}
+                                        {{#last_timecreated_desc}} ▼{{/last_timecreated_desc}}
+                                    </a>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{#studentstats}}
+                            <tr>
+                                <td><input type="checkbox" value="{{userid}}" class="free-select"></td>
+                                <td>
+                                    <a href="{{wwwroot}}/local/ai_programming_assistant/conversation_list.php?userid={{userid}}&amp;actiontype=free&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                                       title="{{#str}}conversation_list_page_title, local_ai_programming_assistant{{/str}}">
+                                        {{fullname}}
+                                    </a>
+                                </td>
+                                <td>{{unique_pages}}</td>
+                                <td>
+                                    <a href="{{wwwroot}}/local/ai_programming_assistant/conversation_list.php?userid={{userid}}&amp;actiontype=free&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                                       class="text-decoration-none">
+                                        {{total_requests}}
+                                    </a>
+                                </td>
+                                <td>{{last_timecreated_str}}</td>
+                            </tr>
+                            {{/studentstats}}
+                            {{#has_studenttotals}}
+                            <tr class="table-secondary fw-bold">
+                                <td></td>
+                                <td>{{#str}}stats_total, local_ai_programming_assistant{{/str}}</td>
+                                <td>-</td>
+                                <td>{{studenttotals.total_requests}}</td>
+                                <td>-</td>
+                            </tr>
+                            {{/has_studenttotals}}
+                            {{^studentstats}}
+                            <tr>
+                                <td colspan="5" class="text-center">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</td>
+                            </tr>
+                            {{/studentstats}}
+                        </tbody>
+                    </table>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-2">
+                    <small class="text-muted">
+                        {{#has_pagination}}{{pagestartitem}} - {{pageenditem}} / {{/has_pagination}}{{studentcount}}
+                    </small>
+                    <select class="form-select form-select-sm" style="width:auto" onchange="if(this.value)window.location.href=this.value">
+                        {{#perpageoptions}}
+                        <option value="{{{url}}}" {{#selected}}selected{{/selected}}>{{value}}</option>
+                        {{/perpageoptions}}
+                    </select>
+                    <button type="button" id="freedeletebtn" class="btn btn-danger btn-sm" disabled>
+                        {{#str}}stats_student_delete_btn, local_ai_programming_assistant{{/str}}
+                    </button>
+                </div>
+                {{#has_pagination}}
+                <nav aria-label="{{#str}}stats_student_stats_pagination, local_ai_programming_assistant{{/str}}">
+                    <ul class="pagination pagination-sm mb-0">
+                        {{#has_previous}}
+                        <li class="page-item">
+                            <a class="page-link" href="{{{previouspageurl}}}" aria-label="{{#str}}previous{{/str}}">&laquo;</a>
+                        </li>
+                        {{/has_previous}}
+                        {{^has_previous}}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                        {{/has_previous}}
+                        {{#pagination}}
+                        <li class="page-item {{#is_active}}active{{/is_active}}">
+                            <a class="page-link" href="{{{url}}}">{{page}}</a>
+                        </li>
+                        {{/pagination}}
+                        {{#has_next}}
+                        <li class="page-item">
+                            <a class="page-link" href="{{{nextpageurl}}}" aria-label="{{#str}}next{{/str}}">&raquo;</a>
+                        </li>
+                        {{/has_next}}
+                        {{^has_next}}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                        {{/has_next}}
+                    </ul>
+                </nav>
+                {{/has_pagination}}
+            </div>
+            </form>
+        </div>
+    </div>
+    {{/has_export}}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var form = document.getElementById('freedeleteform');
+        if (!form) return;
+        var selectAll = document.getElementById('freeselectall');
+        var deleteBtn = document.getElementById('freedeletebtn');
+
+        function getCheckboxes() {
+            return form.querySelectorAll('.free-select');
+        }
+        function getCheckedCount() {
+            return form.querySelectorAll('.free-select:checked').length;
+        }
+        function updateBtn() {
+            if (deleteBtn) deleteBtn.disabled = getCheckedCount() === 0;
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function() {
+                getCheckboxes().forEach(function(cb) { cb.checked = selectAll.checked; });
+                updateBtn();
+            });
+        }
+        form.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('free-select')) {
+                var total = getCheckboxes().length;
+                var checked = getCheckedCount();
+                if (selectAll) selectAll.checked = total === checked && total > 0;
+                updateBtn();
+            }
+        });
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                var count = getCheckedCount();
+                if (count === 0) return;
+                var confirmMsg = {{{confirm_delete_msg_json}}};
+                confirmMsg = confirmMsg.replace('__COUNT__', count);
+                if (!confirm(confirmMsg)) return;
+                var ids = [];
+                getCheckboxes().forEach(function(cb) {
+                    if (cb.checked) ids.push(cb.value);
+                });
+                var actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'delete';
+                form.appendChild(actionInput);
+                var idsInput = document.createElement('input');
+                idsInput.type = 'hidden';
+                idsInput.name = 'recordids';
+                idsInput.value = ids.join(',');
+                form.appendChild(idsInput);
+                var sesskeyInput = document.createElement('input');
+                sesskeyInput.type = 'hidden';
+                sesskeyInput.name = 'sesskey';
+                sesskeyInput.value = M.cfg.sesskey;
+                form.appendChild(sesskeyInput);
+                form.submit();
+            });
+        }
+    });
+    </script>
+</div>

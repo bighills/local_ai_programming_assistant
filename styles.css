@@ -1,0 +1,1371 @@
+/* ========================================
+   AI 编程助手 - 样式文件
+   ========================================
+   CSS 自定义属性（便于主题定制）：
+   --ai-primary:       主色调
+   --ai-bg-panel:      面板背景色
+   --ai-bg-bot:        AI 回复消息背景色
+   --ai-bg-user:       用户消息背景色
+   --ai-text-primary:  主文字颜色
+   --ai-text-secondary: 次要文字颜色
+   --ai-font-code:     等宽字体栈
+   ========================================
+   @author zfl
+   ======================================== */
+
+:root {
+    --ai-primary: var(--bs-primary, #0d6efd);
+    --ai-bg-panel: #fff;
+    --ai-bg-header: var(--ai-primary);
+    --ai-bg-bot: #f0f0f0;
+    --ai-bg-user: var(--ai-primary);
+    --ai-bg-strategy: #f5f5f5;
+    --ai-text-header: #fff;
+    --ai-text-user: #fff;
+    --ai-border: #e0e0e0;
+    --ai-font-code: 'Cascadia Code', 'Fira Code', 'Consolas', 'Courier New', monospace;
+}
+
+/* ========================================
+   前端显示模式支持
+   ========================================
+   支持三种显示模式（通过 body 类切换）：
+   - ai-mode-floating (默认)：浮动悬浮窗
+   - ai-mode-sidebar：右侧侧边栏
+   - ai-mode-fullscreen：全屏覆盖
+   ======================================== */
+
+/* ---------- 头部操作按钮布局 ---------- */
+.ai-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.125rem;
+    flex-shrink: 0;
+}
+
+.ai-viewmode-toggle {
+    font-size: 0.8rem;
+    padding: 0.125rem 0.25rem;
+    opacity: 0.8;
+}
+
+.ai-viewmode-toggle:hover {
+    opacity: 1;
+}
+
+.ai-viewmode-group .dropdown-menu {
+    min-width: 10rem;
+    font-size: 0.8rem;
+}
+
+.ai-viewmode-group .dropdown-item i {
+    margin-right: 0.375rem;
+    width: 1rem;
+    text-align: center;
+}
+
+/* ---------- 基础容器 ---------- */
+#ai-programming-assistant {
+    z-index: 1060;
+    font-size: 0.875rem;
+}
+
+/* ========================================
+   模式 1: 悬浮窗模式 (floating) - 默认
+   ======================================== */
+body.ai-mode-floating #ai-programming-assistant {
+    position: fixed;
+    bottom: 4.5rem;
+    right: 1.5rem;
+}
+
+body.ai-mode-floating #ai-programming-assistant.ai-assistant-expanded .ai-assistant-panel {
+    width: 22rem;
+    height: 30rem;
+}
+
+body.ai-mode-floating #ai-programming-assistant.ai-assistant-popped .ai-assistant-panel {
+    width: 38rem;
+    height: 42rem;
+}
+
+/* ========================================
+   模式 2: 侧边栏模式 (sidebar)
+   宽度由 CSS 自定义属性 --ai-sidebar-width 控制
+   JS 拖拽调整后通过 setProperty 实时更新
+   页面内容仅在面板展开时让出空间（body.ai-panel-open）
+   ======================================== */
+body.ai-mode-sidebar {
+    --ai-sidebar-width: 30%;
+}
+
+body.ai-mode-sidebar.ai-panel-open #page-wrapper #page,
+body.ai-mode-sidebar.ai-panel-open #sticky-footer {
+    margin-right: var(--ai-sidebar-width);
+    transition: margin-right 0.3s ease;
+}
+
+body.ai-mode-sidebar #ai-programming-assistant {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+/* 收起时隐藏面板，但保留右侧重新打开按钮（悬浮于右边缘中部） */
+body.ai-mode-sidebar #ai-programming-assistant.ai-assistant-collapsed .ai-assistant-toggle {
+    display: flex;
+    position: fixed;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    z-index: 1061;
+}
+
+body.ai-mode-sidebar #ai-programming-assistant.ai-assistant-expanded .ai-assistant-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: var(--ai-sidebar-width);
+    max-width: 60%;
+    min-width: 16rem;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    box-shadow: -2px 0 12px rgba(0,0,0,0.12);
+}
+
+body.ai-mode-sidebar #ai-programming-assistant.ai-assistant-popped .ai-assistant-panel {
+    width: var(--ai-sidebar-width);
+    height: 100%;
+}
+
+body.ai-mode-sidebar .ai-assistant-resize-handle {
+    display: none;
+}
+
+body.ai-mode-sidebar .ai-assistant-log {
+    max-height: none;
+}
+
+/* 侧边栏宽度调整把手：默认隐藏，仅在侧边栏模式显示 */
+.ai-sidebar-resize-handle {
+    display: none;
+}
+
+/* 侧边栏拖拽把手：位于面板左侧边缘 */
+body.ai-mode-sidebar .ai-sidebar-resize-handle {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 6px;
+    cursor: col-resize;
+    z-index: 20;
+    background: transparent;
+    transition: background-color 0.2s ease;
+}
+
+body.ai-mode-sidebar .ai-sidebar-resize-handle:hover,
+body.ai-mode-sidebar .ai-sidebar-resize-handle:active {
+    background: var(--ai-primary, #0d6efd);
+    opacity: 0.4;
+}
+
+/* 侧边栏调整中禁用文本选择 */
+body.ai-mode-sidebar.ai-sidebar-resizing {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+body.ai-mode-sidebar.ai-sidebar-resizing .ai-sidebar-resize-handle {
+    background: var(--ai-primary, #0d6efd);
+    opacity: 0.4;
+}
+
+/* ---------- 响应式 ---------- */
+@media (max-width: 576px) {
+    body.ai-mode-floating #ai-programming-assistant.ai-assistant-expanded .ai-assistant-panel {
+        width: calc(100vw - 2rem) !important;
+        height: 50vh !important;
+    }
+    body.ai-mode-floating #ai-programming-assistant.ai-assistant-popped .ai-assistant-panel {
+        width: calc(100vw - 2rem) !important;
+        height: 60vh !important;
+    }
+    body.ai-mode-sidebar #ai-programming-assistant.ai-assistant-expanded .ai-assistant-panel {
+        width: 100%;
+        max-width: 100%;
+    }
+    body.ai-mode-sidebar.ai-panel-open #page-wrapper #page,
+    body.ai-mode-sidebar.ai-panel-open #sticky-footer {
+        margin-right: 0;
+    }
+}
+
+/* ---------- 默认浮动模式保持向后兼容 ---------- */
+body:not([class*="ai-mode-"]) #ai-programming-assistant {
+    position: fixed;
+    bottom: 4.5rem;
+    right: 1.5rem;
+}
+
+body:not([class*="ai-mode-"]) #ai-programming-assistant.ai-assistant-collapsed .ai-assistant-panel {
+    display: none;
+}
+
+body:not([class*="ai-mode-"]) #ai-programming-assistant.ai-assistant-expanded .ai-assistant-panel {
+    display: flex;
+}
+
+#ai-programming-assistant.ai-assistant-collapsed .ai-assistant-panel {
+    display: none;
+}
+
+#ai-programming-assistant.ai-assistant-expanded .ai-assistant-toggle {
+    display: none;
+}
+
+#ai-programming-assistant.ai-assistant-expanded .ai-assistant-panel {
+    display: flex;
+}
+
+.ai-assistant-toggle {
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    cursor: pointer;
+}
+
+.ai-assistant-panel {
+    display: flex;
+    flex-direction: column;
+    width: 22rem;
+    height: 30rem;
+    min-width: 18rem;
+    min-height: 20rem;
+    max-width: 60rem;
+    max-height: 60rem;
+    background: var(--ai-bg-panel);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    overflow: hidden;
+    position: relative;
+}
+
+#ai-programming-assistant.ai-assistant-popped .ai-assistant-panel {
+    width: 38rem;
+    height: 42rem;
+}
+
+.ai-assistant-header {
+    background: var(--ai-bg-header);
+    color: var(--ai-text-header);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.ai-assistant-title {
+    font-weight: 600;
+    flex: 1;
+}
+
+.ai-assistant-header button {
+    color: var(--ai-text-header);
+    text-decoration: none;
+    opacity: 0.85;
+}
+
+.ai-assistant-header button:hover {
+    opacity: 1;
+}
+
+.ai-assistant-question-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid var(--ai-border);
+    flex-shrink: 0;
+}
+
+.ai-question-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ai-text-secondary, #555);
+    white-space: nowrap;
+    margin: 0;
+}
+
+.ai-question-select {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.75rem;
+    padding: 0.125rem 0.5rem;
+}
+
+.ai-assistant-log {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    overscroll-behavior: contain;
+    overflow-anchor: auto;
+}
+
+.ai-message {
+    max-width: 85%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.ai-message.user {
+    align-self: flex-end;
+    background: var(--ai-bg-user);
+    color: var(--ai-text-user);
+}
+
+.ai-message.bot {
+    align-self: flex-start;
+    background: var(--ai-bg-bot);
+    border-bottom-left-radius: 4px;
+}
+
+.ai-message.bot.error {
+    background: #fff0f0;
+    color: #c00;
+}
+
+.ai-message.ai-message-system {
+    max-width: 100%;
+    padding: 0.5rem 0.75rem;
+    align-self: center;
+    text-align: center;
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 0.5rem;
+    color: #8d6e00;
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.ai-message.ai-message-system .ai-msg-bubble-system {
+    background: transparent;
+    padding: 0;
+}
+
+.ai-message.debug {
+    align-self: stretch;
+    background: #1e1e2e;
+    color: #c9d1d9;
+    max-width: 100%;
+    font-size: 0.75rem;
+    padding: 0.375rem 0.5rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--ai-border);
+}
+
+.ai-debug-details {
+    font-family: var(--ai-font-code);
+    font-size: 0.7rem;
+    line-height: 1.4;
+}
+
+.ai-debug-details summary {
+    cursor: pointer;
+    color: #58a6ff;
+    font-weight: 600;
+    padding: 0.125rem 0;
+    user-select: none;
+}
+
+.ai-debug-details summary:hover {
+    color: #79c0ff;
+}
+
+.ai-debug-pre {
+    background: #0d1117;
+    color: #c9d1d9;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-size: 0.65rem;
+    line-height: 1.35;
+    margin: 0.25rem 0 0;
+    max-height: 20rem;
+    overflow-y: auto;
+    border: 1px solid #30363d;
+}
+
+.ai-message.loading,
+.ai-message.streaming {
+    align-self: flex-start;
+    background: #f0f0f0;
+}
+
+.ai-message .ai-msg-sender {
+    font-weight: 600;
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+    opacity: 0.7;
+}
+
+.ai-message-content {
+    min-height: 1.2em;
+}
+
+.ai-thinking-block {
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    overflow: hidden;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+.ai-thinking-block.ai-thinking-active {
+    border-color: #8ab4f8;
+    background: #f0f7ff;
+}
+
+.ai-thinking-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: #eef2f7;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.ai-thinking-header:hover {
+    background: #e3e8ee;
+}
+
+.ai-thinking-active .ai-thinking-header {
+    background: #e3f0ff;
+    border-bottom-color: #b8d4ff;
+    color: #1967d2;
+}
+
+.ai-thinking-active .ai-thinking-header:hover {
+    background: #d4e8ff;
+}
+
+.ai-thinking-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ai-thinking-active .ai-thinking-icon {
+    animation: ai-thinking-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes ai-thinking-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.ai-thinking-label {
+    flex: 1;
+}
+
+.ai-thinking-toggle {
+    padding: 0.125rem 0.25rem;
+    font-size: 0.7rem;
+    color: #888;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.ai-thinking-toggle:hover {
+    color: #555;
+}
+
+.ai-thinking-toggle i {
+    transition: transform 0.2s ease;
+}
+
+.ai-thinking-content {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #666;
+    max-height: 15rem;
+    overflow-y: auto;
+}
+
+.ai-thinking-content p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-thinking-content pre {
+    margin: 0.4rem 0;
+    padding: 0.5rem;
+    background: #f0f0f0;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    max-height: 8rem;
+    overflow-y: auto;
+}
+
+.ai-thinking-content code {
+    font-family: var(--ai-font-code);
+    font-size: 0.75rem;
+}
+
+.ai-thinking-block.ai-thinking-collapsed .ai-thinking-content {
+    display: none;
+}
+
+.ai-message-content p {
+    margin: 0 0 0.375rem;
+}
+
+.ai-message-content p:last-child {
+    margin-bottom: 0;
+}
+
+.ai-assistant-strategy-bar {
+    display: flex;
+    padding: 0.375rem 0.5rem;
+    border-top: 1px solid var(--ai-border);
+    gap: 0.25rem;
+    flex-shrink: 0;
+    background: var(--ai-bg-strategy);
+    flex-wrap: wrap;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease;
+}
+
+.ai-assistant-strategy-bar.ai-strategy-bar-highlight {
+    background-color: #fff3cd;
+    box-shadow: 0 0 0 2px #ffc107, inset 0 0 0 1px #ffc107;
+}
+
+.ai-strategy-btn {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.45rem;
+    border: 1px solid var(--ai-border);
+    background: var(--ai-bg-panel);
+    color: var(--ai-text-secondary, #555);
+    border-radius: 0.25rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: color 0.15s, background-color 0.15s, border-color 0.15s;
+    line-height: 1.4;
+}
+
+.ai-strategy-btn:hover {
+    background: #e8f0fe;
+    border-color: #8ab4f8;
+    color: #1967d2;
+}
+
+.ai-strategy-btn.ai-strategy-active {
+    background: var(--ai-bg-user);
+    border-color: var(--ai-bg-user);
+    color: var(--ai-text-user);
+}
+
+.ai-strategy-btn.ai-strategy-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* 返回按钮隐藏状态 */
+.ai-back-btn.ai-back-btn-hidden {
+    display: none !important;
+}
+
+/* 策略模式按钮隐藏状态（选中策略后隐藏自由对话和策略按钮，仅显示返回按钮） */
+.ai-strategy-btn.ai-strategy-item-hidden {
+    display: none !important;
+}
+
+.ai-assistant-strategy-options {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    padding: 0.25rem 0.5rem;
+    border-top: 1px solid #e8e8e8;
+    flex-shrink: 0;
+    background: #fafafa;
+}
+
+.ai-strategy-options-hidden {
+    display: none !important;
+}
+
+.ai-strategy-checkbox-label {
+    font-size: 0.75rem;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.ai-strategy-checkbox-label input[type="checkbox"] {
+    margin: 0;
+    cursor: pointer;
+}
+
+.ai-assistant-input-area {
+    display: flex;
+    padding: 0.5rem;
+    border-top: 1px solid #e0e0e0;
+    gap: 0.375rem;
+    flex-shrink: 0;
+    background: #fafafa;
+}
+
+.ai-assistant-input {
+    resize: vertical;
+    font-size: 0.875rem;
+    border-radius: 0.375rem;
+    flex: 1;
+}
+
+.ai-assistant-send {
+    flex-shrink: 0;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.375rem;
+    align-self: flex-end;
+    font-size: 0.875rem;
+}
+
+.ai-assistant-stop {
+    flex-shrink: 0;
+    padding: 0.375rem 0.75rem;
+    margin-left: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.ai-stop-btn-visible {
+    display: inline-block !important;
+}
+
+.ai-stop-btn-hidden {
+    display: none !important;
+}
+
+.ai-assistant-resize-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: nwse-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.7rem;
+    user-select: none;
+    z-index: 10;
+}
+
+.ai-assistant-resize-handle:hover {
+    color: #fff;
+}
+
+.ai-assistant-resize-handle i {
+    pointer-events: none;
+}
+
+.ai-assistant-resizing {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+@media (max-width: 576px) {
+    .ai-assistant-panel {
+        width: calc(100vw - 2rem) !important;
+        height: 50vh !important;
+        position: fixed;
+        bottom: 0;
+        right: 0;
+        border-radius: 0.75rem 0.75rem 0 0;
+    }
+
+    #ai-programming-assistant.ai-assistant-popped .ai-assistant-panel {
+        width: calc(100vw - 2rem) !important;
+        height: 60vh !important;
+    }
+}
+
+@keyframes ai-assistant-fadein {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-message-new {
+    animation: ai-assistant-fadein 0.3s ease;
+}
+
+.ai-message-content h1,
+.ai-message-content h2,
+.ai-message-content h3,
+.ai-message-content h4,
+.ai-message-content h5,
+.ai-message-content h6 {
+    margin: 0.75rem 0 0.375rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.ai-message-content h1 {
+    font-size: 1.25rem;
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 0.25rem;
+}
+
+.ai-message-content h2 {
+    font-size: 1.1rem;
+    border-bottom: 1px solid #e8e8e8;
+    padding-bottom: 0.125rem;
+}
+
+.ai-message-content h3 {
+    font-size: 1rem;
+}
+
+.ai-message-content h4 {
+    font-size: 0.9rem;
+}
+
+.ai-message-content h5,
+.ai-message-content h6 {
+    font-size: 0.85rem;
+}
+
+.ai-message-content ul,
+.ai-message-content ol {
+    margin: 0.375rem 0;
+    padding-left: 1.5rem;
+}
+
+.ai-message-content li {
+    margin: 0.125rem 0;
+    line-height: 1.5;
+}
+
+.ai-message-content li > ul,
+.ai-message-content li > ol {
+    margin: 0.125rem 0;
+    padding-left: 1.25rem;
+}
+
+.ai-message-content blockquote {
+    margin: 0.5rem 0;
+    padding: 0.375rem 0.5rem;
+    border-left: 3px solid var(--bs-primary, #0d6efd);
+    background: rgba(13, 110, 253, 0.05);
+    color: #495057;
+    font-style: italic;
+    border-radius: 0 0.25rem 0.25rem 0;
+}
+
+.ai-message-content blockquote p {
+    margin: 0;
+}
+
+.ai-task {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.375rem;
+    padding: 0.125rem 0;
+}
+
+.ai-task input[type="checkbox"] {
+    margin: 0.25rem 0 0;
+    flex-shrink: 0;
+    cursor: default;
+}
+
+.ai-task input[type="checkbox"]:checked + span,
+.ai-task input[type="checkbox"]:checked + * {
+    text-decoration: line-through;
+    color: #868e96;
+}
+
+.ai-message-content hr {
+    margin: 1rem 0;
+    border: none;
+    border-top: 1px solid #e0e0e0;
+}
+
+.ai-message-content strong {
+    font-weight: 600;
+}
+
+.ai-message-content em {
+    font-style: italic;
+}
+
+.ai-table-wrapper {
+    overflow-x: auto;
+    margin: 0.5rem 0;
+    border-radius: 0.375rem;
+    border: 1px solid #dee2e6;
+}
+
+.ai-message-content table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.ai-message-content th,
+.ai-message-content td {
+    border: 1px solid #dee2e6;
+    padding: 0.375rem 0.5rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.ai-message-content th {
+    background: #f8f9fa;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.ai-message-content tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.ai-message-content tr:hover {
+    background: #f0f4ff;
+}
+
+.ai-message-content pre {
+    background: #f8f9fa;
+    color: #000;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    margin: 0.5rem 0;
+    border: 1px solid #e0e0e0;
+}
+
+.ai-message-content pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+}
+
+.ai-message-content code {
+    background: rgba(0,0,0,0.08);
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.85em;
+    font-family: var(--ai-font-code);
+}
+
+.ai-message-content pre[class*="language-"] {
+    background: #f5f2f0;
+    border: 1px solid #ddd;
+}
+
+.ai-message.user code {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+}
+
+.ai-message-content a {
+    color: var(--bs-primary, #0d6efd);
+    text-decoration: none;
+}
+
+.ai-message-content a:hover {
+    text-decoration: underline;
+}
+
+.ai-message-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.25rem;
+}
+
+/* 知识库引用链接样式
+   使用 .ai-message-content .ai-kb-link 提高特异性，
+   确保覆盖 .ai-message-content a 的 text-decoration: none */
+.ai-message-content .ai-kb-link {
+    color: var(--bs-primary, #0d6efd);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-weight: 500;
+    transition: color 0.15s ease;
+}
+.ai-message-content .ai-kb-link:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+}
+.ai-message-content .ai-kb-link:visited {
+    color: #6f42c1;
+}
+.ai-message-content .ai-kb-link::after {
+    content: '\2197'; /* ↗ unicode 右上箭头 */
+    display: inline-block;
+    margin-left: 0.15em;
+    font-size: 0.75em;
+    opacity: 0.6;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    vertical-align: super;
+    line-height: 1;
+}
+.ai-message-content .ai-kb-link:hover::after {
+    opacity: 1;
+    transform: translate(1px, -1px);
+}
+
+/* footnote / dd / dt: 防御性样式，AI 回复中极少出现但保留以防万一 */
+
+.ai-code-block {
+    position: relative;
+    margin: 12px 0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.ai-code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background: #e9ecef;
+    border-radius: 6px 6px 0 0;
+    font-size: 12px;
+}
+
+.ai-code-lang {
+    color: #495057;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ai-code-lang[data-lang="python"] { color: #3776ab; }
+.ai-code-lang[data-lang="java"] { color: #ed8b00; }
+.ai-code-lang[data-lang="javascript"] { color: #f7df1e; }
+.ai-code-lang[data-lang="typescript"] { color: #3178c6; }
+.ai-code-lang[data-lang="cpp"],
+.ai-code-lang[data-lang="c++"],
+.ai-code-lang[data-lang="c"] { color: #00599c; }
+.ai-code-lang[data-lang="php"] { color: #777bb4; }
+.ai-code-lang[data-lang="html"] { color: #e34c26; }
+.ai-code-lang[data-lang="css"] { color: #264de4; }
+.ai-code-lang[data-lang="sql"] { color: #e38c00; }
+.ai-code-lang[data-lang="go"] { color: #00add8; }
+.ai-code-lang[data-lang="rust"] { color: #dea584; }
+.ai-code-lang[data-lang="ruby"] { color: #cc342d; }
+
+.ai-code-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.ai-code-copy,
+.ai-code-fold {
+    background: none;
+    border: 1px solid #6c757d;
+    color: #495057;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.ai-code-copy:hover,
+.ai-code-fold:hover {
+    background: #495057;
+    color: white;
+    border-color: #495057;
+}
+
+.ai-code-body {
+    display: flex;
+    background: #fff;
+}
+
+.ai-code-lines {
+    flex-shrink: 0;
+    padding: 16px 8px;
+    background: #f5f5f5;
+    text-align: right;
+    user-select: none;
+    min-width: 32px;
+}
+
+.ai-code-line-num {
+    display: block;
+    color: #999;
+    font-family: var(--ai-font-code);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.ai-code-block pre {
+    margin: 0;
+    border-radius: 0;
+    padding: 0;
+    flex: 1;
+    min-width: 0;           /* Firefox: allow flex shrink below content width */
+    max-height: none;
+    overflow-x: auto;       /* 在 <pre> 层级处理滚动，兼容 Firefox flex 布局 */
+    overflow-y: hidden;
+}
+
+.ai-source-code-pre {
+    color: #333;
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    border: 1px solid #dee2e6;
+    overflow-x: auto;
+}
+
+.ai-stats-filter-group {
+    max-width: 150px;
+}
+
+.ai-code-block code {
+    display: block;
+    padding: 16px;
+    padding-left: 13px;
+    background: #fff;
+    color: #000;
+    font-family: 'Courier New', Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre;          /* 保留不换行，由父级 <pre> 控制 X 轴滚动 */
+    border-left: 3px solid #4caf50;
+}
+
+.ai-code-block-folded .ai-code-body {
+    max-height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.ai-code-block-folded .ai-code-body::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, transparent, #fff);
+    pointer-events: none;
+}
+
+.ai-code-block-folded .ai-code-fold i {
+    transform: rotate(-90deg);
+}
+
+.ai-stream-stable,
+.ai-stream-tail {
+    min-height: 1em;
+}
+
+.ai-typing-indicator {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px 0;
+}
+
+.ai-typing-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #999;
+    animation: ai-typing-bounce 1.4s infinite ease-in-out both;
+}
+
+.ai-typing-dot:nth-child(1) { animation-delay: -0.32s; }
+.ai-typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes ai-typing-bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}
+
+/* ---------- 键盘焦点无障碍性 ----------
+   为所有可交互元素提供可见的 focus-visible 指示器 */
+.ai-assistant-toggle:focus-visible,
+.ai-assistant-header button:focus-visible,
+.ai-strategy-btn:focus-visible,
+.ai-assistant-send:focus-visible,
+.ai-assistant-stop:focus-visible,
+.ai-code-copy:focus-visible,
+.ai-code-fold:focus-visible {
+    outline: 2px solid var(--ai-primary);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+/* 带圆角的元素使用 border-radius 配合 outline */
+.ai-strategy-btn:focus-visible,
+.ai-assistant-send:focus-visible,
+.ai-assistant-stop:focus-visible,
+.ai-code-copy:focus-visible,
+.ai-code-fold:focus-visible {
+    border-radius: 0.25rem;
+}
+
+/* 确保已有 outline: none 声明的元素不会隐藏焦点 */
+.ai-assistant-header button:focus-visible {
+    opacity: 1;
+}
+
+/* ========================================
+   统计页面样式
+   ======================================== */
+
+/* 统计概览卡片 */
+.ai-programming-assistant-stats-overview .card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ai-programming-assistant-stats-overview .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* 每日趋势表格 */
+.ai-programming-assistant-stats-daily .table-sm td,
+.ai-programming-assistant-stats-daily .table-sm th {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+/* 学生统计表格 */
+.ai-programming-assistant-stats-students .table td:first-child {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 学生姓名链接 */
+.ai-programming-assistant-stats-students td a {
+    font-weight: 500;
+}
+
+/* 合计行样式 */
+.ai-programming-assistant-stats-students .table-secondary td {
+    font-weight: 600;
+    background-color: #f0f4f8;
+}
+
+/* 模型使用列表 */
+.ai-programming-assistant-stats-details .list-group-item {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* 页面间导航面包屑 */
+.ai-programming-assistant-free-stats-page .btn-outline-secondary.btn-sm {
+    font-weight: 500;
+}
+
+/* 预设日期按钮组 */
+.ai-programming-assistant-free-stats-page .btn-group .btn.active,
+.ai-programming-assistant-stats-page .btn-group .btn.active {
+    z-index: 0;
+    font-weight: 600;
+}
+
+/* 统计页面空数据提示 */
+.ai-programming-assistant-free-stats-page .alert-info,
+.ai-programming-assistant-stats-page .alert-info {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 卡片头部多行布局 */
+.ai-programming-assistant-stats-students .card-header {
+    line-height: 1.5;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .ai-programming-assistant-stats-overview .row-cols-md-4 > .col {
+        margin-bottom: 0.5rem;
+    }
+    .ai-programming-assistant-stats-daily .table-responsive {
+        font-size: 0.8rem;
+    }
+    .ai-programming-assistant-free-stats-page .btn-group,
+    .ai-programming-assistant-stats-page .btn-group {
+        flex-wrap: wrap;
+    }
+}
+
+/* ========================================
+   管理后台多端点配置（admin_setting_endpoints）
+   ======================================== */
+
+/* 标签与输入框同行显示。
+   Bootstrap 5 中 .form-control 的 width:100% 在源码顺序上晚于
+   .col-sm-* 网格规则，同优先级下会覆盖 col-sm-10 的宽度，
+   导致输入框（16.67% 标签 + 100% 输入框 > 100%）换行到标签下方。
+   此处用更高优先级的选择器恢复网格宽度，保证输入框与标签同行。 */
+.ai-endpoint-row .row > .form-control.col-sm-10 {
+    flex: 0 0 auto;
+    width: 80%;
+}
+
+/* ========================================
+   知识库文件查看页（kb_view.php）
+   ======================================== */
+.kb-chunk {
+    padding: 1rem;
+}
+.kb-chunk-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+.kb-chunk-content {
+    margin: 0;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 0.25rem;
+    border: 1px solid #e9ecef;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* ===== 总揽页面样式 ===== */
+.ai-programming-assistant-overview-page .card {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ai-programming-assistant-overview-page .ai-overview-kpi .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* KPI 卡片数值与标签 */
+.ai-overview-kpi-value {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #212529;
+}
+
+.ai-overview-kpi-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* 每日趋势柱状图容器 */
+.ai-overview-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 180px;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+/* 每日柱：内部上下两段（成功在下、失败在上） */
+.ai-overview-bar {
+    flex: 1 1 0;
+    min-width: 6px;
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-start;
+    border-radius: 3px 3px 0 0;
+    overflow: hidden;
+    cursor: default;
+}
+
+.ai-overview-bar-segment {
+    min-height: 1px;
+    transition: height 0.2s ease;
+}
+
+/* x 轴标签 */
+.ai-overview-xaxis {
+    display: flex;
+    gap: 2px;
+    margin-top: 0.25rem;
+}
+
+.ai-overview-xaxis-label {
+    flex: 1 1 0;
+    min-width: 6px;
+    text-align: center;
+    font-size: 0.7rem;
+    color: #6c757d;
+    visibility: hidden;
+}
+
+.ai-overview-xaxis-label.ai-overview-xaxis-visible {
+    visibility: visible;
+}
+
+/* 水平分布条（模式/模型/试题vs自由） */
+.ai-overview-distribution-bar {
+    height: 22px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.ai-overview-distribution-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+    min-width: 2px;
+}
+
+/* 响应式：小屏隐藏 x 轴标签 */
+@media (max-width: 768px) {
+    .ai-overview-chart {
+        height: 140px;
+    }
+
+    .ai-overview-kpi-value {
+        font-size: 1.4rem;
+    }
+}

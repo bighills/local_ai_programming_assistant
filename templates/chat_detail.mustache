@@ -1,0 +1,136 @@
+{{!
+    AI 编程助手 - 有题号聊天详情页模板
+
+    显示指定学生在有题号（主日志）下的全部对话记录，支持分页浏览。
+    每条记录包含用户消息、AI 回复、试题信息、模式、响应时间等。
+
+    @template local_ai_programming_assistant/chat_detail
+    @author zfl
+}}
+<div class="ai-programming-assistant-chat-detail-page">
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                <div>
+                    <h5 class="mb-1">{{studentname}} ({{studentusername}})</h5>
+                    {{#hasquiz}}
+                    <span class="badge bg-info me-2">{{quizname}}</span>
+                    {{/hasquiz}}
+                    <a href="{{{backtourl}}}" class="btn btn-outline-secondary btn-sm">
+                        {{#str}}chat_detail_back, local_ai_programming_assistant{{/str}}
+                    </a>
+                </div>
+                <form method="get" action="" class="d-flex flex-wrap align-items-end gap-2">
+                    <input type="hidden" name="userid" value="{{userid}}">
+                    {{#quizid}}
+                    <input type="hidden" name="quizid" value="{{quizid}}">
+                    {{/quizid}}
+                    <div>
+                        <label for="starttime" class="form-label small mb-0">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="starttime" name="starttime" class="form-control form-control-sm"
+                               value="{{starttime_display}}" style="width:140px">
+                    </div>
+                    <div>
+                        <label for="endtime" class="form-label small mb-0">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="endtime" name="endtime" class="form-control form-control-sm"
+                               value="{{endtime_display}}" style="width:140px">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                </form>
+            </div>
+            <div class="mt-2">
+                <span class="badge bg-info">{{#str}}chat_detail_total, local_ai_programming_assistant{{/str}}: {{totalrecords}}</span>
+            </div>
+        </div>
+    </div>
+
+    {{^hasdata}}
+    <div class="alert alert-warning">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</div>
+    {{/hasdata}}
+
+    {{#hasdata}}
+    <div class="ai-programming-assistant-chat-records">
+        {{#chatrecords}}
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between align-items-start mb-2">
+                    <div>
+                        <span class="text-muted small">{{timecreated_str}}</span>
+                        {{#success}}
+                        <span class="badge bg-success ms-2">{{#str}}stats_success, local_ai_programming_assistant{{/str}}</span>
+                        {{/success}}
+                        {{^success}}
+                        <span class="badge bg-danger ms-2">{{#str}}stats_failed, local_ai_programming_assistant{{/str}}</span>
+                        {{/success}}
+                        <span class="badge bg-light text-warning border border-warning ms-1">Q{{questionid}}</span>
+                    </div>
+                    <div>
+                        {{#model}}
+                        <span class="badge bg-light text-primary border border-primary">{{model}}</span>
+                        {{/model}}
+                        {{#responsetime}}
+                        <span class="badge bg-secondary ms-1">{{responsetime}} ms</span>
+                        {{/responsetime}}
+                        {{#modelabel}}
+                        <span class="badge bg-light text-info border border-info ms-1">{{modelabel}}</span>
+                        {{/modelabel}}
+                    </div>
+                </div>
+
+                {{#questionname}}
+                <div class="mb-2">
+                    <small class="text-muted">{{#str}}question, local_ai_programming_assistant{{/str}}: {{questionname}}</small>
+                </div>
+                {{/questionname}}
+
+                <div class="mb-3">
+                    <h6 class="text-primary mb-1">{{#str}}me, local_ai_programming_assistant{{/str}}</h6>
+                    <pre class="ai-source-code-pre mb-0">{{usermessage}}</pre>
+                </div>
+
+                <div class="mb-3">
+                    <h6 class="text-success mb-1">{{#str}}ai_sender, local_ai_programming_assistant{{/str}}</h6>
+                    <div class="border p-3 rounded bg-light">{{{airesponse}}}</div>
+                </div>
+
+                {{#studentanswer}}
+                <div class="mt-2">
+                    <details class="small">
+                        <summary class="text-muted">{{#str}}free_chat_detail_source_code, local_ai_programming_assistant{{/str}}</summary>
+                        <pre class="ai-source-code-pre mt-1">{{studentanswer}}</pre>
+                    </details>
+                </div>
+                {{/studentanswer}}
+
+                {{#errormessage}}
+                <div class="alert alert-danger small mt-2 mb-0">{{errormessage}}</div>
+                {{/errormessage}}
+            </div>
+        </div>
+        {{/chatrecords}}
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center px-3 pb-2">
+        <small class="text-muted">{{totalrecords}} {{#str}}chat_detail_total, local_ai_programming_assistant{{/str}}</small>
+        {{#hasmulti}}
+        <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {{#pageone}}disabled{{/pageone}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;page={{prevpage}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}">&laquo;</a>
+                </li>
+                {{#pagenums}}
+                <li class="page-item {{#active}}active{{/active}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;page={{num}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}">{{num}}</a>
+                </li>
+                {{/pagenums}}
+                <li class="page-item {{#pagelast}}disabled{{/pagelast}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;page={{nextpage}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        {{/hasmulti}}
+    </div>
+    {{/hasdata}}
+
+</div>

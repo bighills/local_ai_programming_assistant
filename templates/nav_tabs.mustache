@@ -1,0 +1,34 @@
+{{!
+    AI 编程助手 - 共享导航标签栏
+
+    顶部导航，用于在四个主要统计页面之间切换。
+
+    @template local_ai_programming_assistant/nav_tabs
+}}
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link {{#nav_overview}}active{{/nav_overview}}" href="{{{nav_overview_url}}}">
+            {{#str}}overview_page_title, local_ai_programming_assistant{{/str}}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{#nav_stats}}active{{/nav_stats}}" href="{{{nav_stats_url}}}">
+            {{#str}}stats_page_title, local_ai_programming_assistant{{/str}}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{#nav_free_stats}}active{{/nav_free_stats}}" href="{{{nav_free_stats_url}}}">
+            {{#str}}free_stats_page_title, local_ai_programming_assistant{{/str}}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{#nav_conversation_list}}active{{/nav_conversation_list}}" href="{{{nav_conversation_list_url}}}">
+            {{#str}}conversation_list_page_title, local_ai_programming_assistant{{/str}}
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link {{#nav_asked_questions}}active{{/nav_asked_questions}}" href="{{{nav_asked_questions_url}}}">
+            {{#str}}asked_questions_page_title, local_ai_programming_assistant{{/str}}
+        </a>
+    </li>
+</ul>

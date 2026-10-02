@@ -1,0 +1,391 @@
+{{!
+    AI 编程助手 - 测验统计查询页面模板
+
+    按试题维度展示测验中 AI 助手的使用统计数据，包括试题分析、追问和学生详情。
+
+    @template local_ai_programming_assistant/quiz_stats_page
+    @author zfl
+}}
+<div class="ai-programming-assistant-quiz-stats-page">
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="get" action="" class="row g-3">
+                <div class="col-md-3 ai-stats-filter-group">
+                    <label for="quizid" class="form-label">{{#str}}quiz_stats_quizid, local_ai_programming_assistant{{/str}}</label>
+                    <input type="number" id="quizid" name="quizid" class="form-control"
+                           value="{{quizid}}" min="1" placeholder="{{#str}}quiz_stats_quizid, local_ai_programming_assistant{{/str}}">
+                </div>
+                <div class="col-md-3">
+                    <label for="starttime" class="form-label">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                    <input type="date" id="starttime" name="starttime" class="form-control" value="{{starttime_display}}">
+                </div>
+                <div class="col-md-3">
+                    <label for="endtime" class="form-label">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                    <input type="date" id="endtime" name="endtime" class="form-control" value="{{endtime_display}}">
+                </div>
+                <div class="col-md-3 d-flex align-items-end flex-nowrap gap-1">
+                    <button type="submit" class="btn btn-primary">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                 
+                    {{#showbacktoquiz}}
+                    <a href="{{backtoquizurl}}" class="btn btn-outline-secondary">{{#str}}backtoquiz, local_ai_programming_assistant{{/str}}</a>
+                    {{/showbacktoquiz}}
+
+          
+                </div>
+            </form>
+            {{#hasquiz}}
+            <div class="mt-2 p-2 bg-light rounded">
+                <strong>{{#str}}quiz_stats_quiz_name, local_ai_programming_assistant{{/str}}:</strong> {{quizname}}
+            </div>
+            {{/hasquiz}}
+        </div>
+    </div>
+
+    {{#hasquiz}}
+    {{#hasgroups}}
+    <div class="card mb-3 mt-3">
+        <div class="card-body py-2">
+            <form method="get" action="" class="row g-3 align-items-center">
+                <input type="hidden" name="quizid" value="{{quizid}}">
+                {{#cmid}}<input type="hidden" name="cmid" value="{{cmid}}">{{/cmid}}
+                {{#starttime_display}}<input type="hidden" name="starttime" value="{{starttime_display}}">{{/starttime_display}}
+                {{#endtime_display}}<input type="hidden" name="endtime" value="{{endtime_display}}">{{/endtime_display}}
+                <input type="hidden" name="tab" value="{{tab}}">
+                <div class="col-auto">
+                    <label for="groupid" class="form-label mb-0">{{#str}}student_usage_group_filter, local_ai_programming_assistant{{/str}}</label>
+                </div>
+                <div class="col-auto">
+                    <select name="groupid" id="groupid" class="form-select">
+                        <option value="0">{{#str}}student_usage_group_all, local_ai_programming_assistant{{/str}}</option>
+                        {{#groups}}
+                        <option value="{{id}}" {{#selected}}selected{{/selected}}>{{name}}</option>
+                        {{/groups}}
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                </div>
+                {{#groupid}}<div class="col-auto"><span class="badge bg-info">{{#str}}student_usage_group_filtered, local_ai_programming_assistant{{/str}}</span></div>{{/groupid}}
+            </form>
+        </div>
+    </div>
+    {{/hasgroups}}
+    <ul class="nav nav-tabs mt-3">
+        <li class="nav-item">
+            <a class="nav-link {{#tab_overview}}active{{/tab_overview}}" href="?{{{baseurlparams}}}&amp;tab=overview">
+                {{#str}}quiz_stats_tab_overview, local_ai_programming_assistant{{/str}}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{#tab_question_followups}}active{{/tab_question_followups}}" href="?{{{baseurlparams}}}&amp;tab=question_followups">
+                {{#str}}quiz_stats_tab_question_followups, local_ai_programming_assistant{{/str}}
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link {{#tab_student_followups}}active{{/tab_student_followups}}" href="?{{{baseurlparams}}}&amp;tab=student_followups">
+                {{#str}}quiz_stats_tab_student_followups, local_ai_programming_assistant{{/str}}
+            </a>
+        </li>
+    </ul>
+    {{/hasquiz}}
+
+    {{#invalidquiz}}
+    <div class="alert alert-danger mt-3">{{#str}}quiz_stats_invalid_quiz, local_ai_programming_assistant{{/str}}</div>
+    {{/invalidquiz}}
+
+    {{#requireresttaken}}
+    <div class="alert alert-warning mt-3">{{#str}}quiz_stats_require_rest, local_ai_programming_assistant{{/str}}</div>
+    {{/requireresttaken}}
+
+    {{#hasquiz}}
+    <div class="tab-content mt-3">
+        <div class="tab-pane {{#tab_overview}}active{{/tab_overview}}" id="tab-overview">
+            <div class="mt-4">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">{{#str}}quiz_stats_question_usage, local_ai_programming_assistant{{/str}}</h5>
+                        {{#has_export}}
+                        <a href="?export=csv&amp;tab=overview&amp;quizid={{quizid}}{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}"
+                           class="btn btn-outline-success btn-sm">
+                            {{#str}}export_csv, local_ai_programming_assistant{{/str}}
+                        </a>
+                        {{/has_export}}
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{#str}}stats_question, local_ai_programming_assistant{{/str}}</th>
+                                    <th>{{#str}}stats_question_name, local_ai_programming_assistant{{/str}}</th>
+                                    <th class="text-center">{{#str}}stats_unique_users, local_ai_programming_assistant{{/str}}</th>
+                                    <th class="text-center">{{#str}}quiz_stats_total_chats, local_ai_programming_assistant{{/str}}</th>
+                                    <th class="text-center">{{#str}}mode_question_analysis, local_ai_programming_assistant{{/str}}</th>
+                                    <th class="text-center">{{#str}}mode_idea_organization, local_ai_programming_assistant{{/str}}</th>
+                                    <th class="text-center">{{#str}}mode_code_debugging, local_ai_programming_assistant{{/str}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#questionstats}}
+                                <tr>
+                                    <td>{{questionid}}</td>
+                                    <td>
+                                        <span class="fw-bold">{{questionname}}</span>
+                                    </td>
+                                    <td class="text-center">{{unique_users}}</td>
+                                    <td class="text-center">
+                                        {{#total_requests}}
+                                        <a href="?quizid={{quizid}}&amp;tab=question_followups&amp;filter_questionid={{questionid}}&amp;{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}"
+                                           class="text-primary text-decoration-underline">
+                                            {{total_requests}}
+                                        </a>
+                            
+                                        {{/total_requests}}
+                                        {{^total_requests}}0{{/total_requests}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{#mode_question_analysis_count}}
+                                        <a href="?quizid={{quizid}}&amp;tab=question_followups&amp;filter_questionid={{questionid}}&amp;filter_actiontype=question_analysis{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}"
+                                           class="text-primary text-decoration-underline">
+                                            {{mode_question_analysis_count}}
+                                        </a>
+                                        {{/mode_question_analysis_count}}
+                                        {{^mode_question_analysis_count}}0{{/mode_question_analysis_count}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{#mode_idea_organization_count}}
+                                        <a href="?quizid={{quizid}}&amp;tab=question_followups&amp;filter_questionid={{questionid}}&amp;filter_actiontype=idea_organization{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}"
+                                           class="text-primary text-decoration-underline">
+                                            {{mode_idea_organization_count}}
+                                        </a>
+                                        {{/mode_idea_organization_count}}
+                                        {{^mode_idea_organization_count}}0{{/mode_idea_organization_count}}
+                                    </td>
+                                    <td class="text-center">
+                                        {{#mode_code_debugging_count}}
+                                        <a href="?quizid={{quizid}}&amp;tab=question_followups&amp;filter_questionid={{questionid}}&amp;filter_actiontype=code_debugging{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}"
+                                           class="text-primary text-decoration-underline">
+                                            {{mode_code_debugging_count}}
+                                        </a>
+                                        {{/mode_code_debugging_count}}
+                                        {{^mode_code_debugging_count}}0{{/mode_code_debugging_count}}
+                                    </td>
+                                </tr>
+                                {{/questionstats}}
+                                {{#has_totals}}
+                                <tr class="table-secondary fw-bold">
+                                    <td colspan="2">{{#str}}stats_total, local_ai_programming_assistant{{/str}}</td>
+                                    <td>-</td>
+                                    <td class="text-center">{{totals.total_requests}}</td>
+                                    <td class="text-center">{{totals.mode_question_analysis_count}}</td>
+                                    <td class="text-center">{{totals.mode_idea_organization_count}}</td>
+                                    <td class="text-center">{{totals.mode_code_debugging_count}}</td>
+                                </tr>
+                                {{/has_totals}}
+                                {{^questionstats}}
+                                <tr>
+                                    <td colspan="7" class="text-center">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</td>
+                                </tr>
+                                {{/questionstats}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {{#qhasmulti}}
+            <div class="d-flex justify-content-center mt-2 mb-2">
+                <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item {{#qpageone}}disabled{{/qpageone}}">
+                            <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=overview&amp;qpage={{qprevpage}}">&laquo;</a>
+                        </li>
+                        {{#qpagenums}}
+                        <li class="page-item {{#active}}active{{/active}}">
+                            <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=overview&amp;qpage={{num}}">{{num}}</a>
+                        </li>
+                        {{/qpagenums}}
+                        <li class="page-item {{#qpagelast}}disabled{{/qpagelast}}">
+                            <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=overview&amp;qpage={{qnextpage}}">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            {{/qhasmulti}}
+        </div>
+
+        <div class="tab-pane {{#tab_question_followups}}active{{/tab_question_followups}}" id="tab-question-followups">
+            <div class="mt-4">
+                {{#has_filter}}
+                <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
+                    <span>
+                        {{#filter_questionid}}{{#str}}stats_question, local_ai_programming_assistant{{/str}} ID: {{filter_questionid}}{{/filter_questionid}}
+                        {{#filter_actiontype}} | {{#str}}recent_quiz_chats_mode, local_ai_programming_assistant{{/str}}: {{filter_actiontype}}{{/filter_actiontype}}
+                    </span>
+                    <a href="?quizid={{quizid}}&amp;tab=question_followups{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}"
+                       class="btn btn-outline-secondary btn-sm">
+                        {{#str}}quiz_stats_clear_filter, local_ai_programming_assistant{{/str}}
+                    </a>
+                </div>
+                {{/has_filter}}
+                {{#has_questionconversations}}
+                {{#has_export}}
+                <div class="d-flex justify-content-end mb-2">
+                    <a href="?export=csv&amp;tab=question_followups&amp;quizid={{quizid}}{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}{{#filter_questionid}}&amp;filter_questionid={{filter_questionid}}{{/filter_questionid}}{{#filter_actiontype}}&amp;filter_actiontype={{filter_actiontype}}{{/filter_actiontype}}"
+                       class="btn btn-outline-success btn-sm">
+                        {{#str}}export_csv, local_ai_programming_assistant{{/str}}
+                    </a>
+                </div>
+                {{/has_export}}
+                {{#questionconversations}}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{questionname}} (ID: {{questionid}})</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{#str}}stats_username, local_ai_programming_assistant{{/str}}</th>
+                                    <th>{{#str}}recent_quiz_chats_mode, local_ai_programming_assistant{{/str}}</th>
+                                    <th class="text-center">{{#str}}conversation_list_messagecount, local_ai_programming_assistant{{/str}}</th>
+                                    <th>{{#str}}stats_time, local_ai_programming_assistant{{/str}}</th>
+                                    <th>{{#str}}question_detail_action, local_ai_programming_assistant{{/str}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#conversations}}
+                                <tr>
+                                    <td>{{studentname}} ({{username}})</td>
+                                    <td><span class="badge bg-light text-info border border-info">{{actiontype_label}}</span></td>
+                                    <td class="text-center">{{messagecount}}</td>
+                                    <td><span class="text-muted small">{{starttime_str}}</span></td>
+                                    <td>
+                                        <a href="{{{detailurl}}}" class="btn btn-sm btn-outline-primary">
+                                            {{#str}}question_detail_view_detail, local_ai_programming_assistant{{/str}}
+                                        </a>
+                                    </td>
+                                </tr>
+                                {{/conversations}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {{/questionconversations}}
+                {{/has_questionconversations}}
+                {{^has_questionconversations}}
+                <div class="alert alert-warning">{{#str}}quiz_stats_require_rest, local_ai_programming_assistant{{/str}}</div>
+                {{/has_questionconversations}}
+                {{#fqhasmulti}}
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item {{#fqpageone}}disabled{{/fqpageone}}">
+                                <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=question_followups&amp;fqpage={{fqprevpage}}">&laquo;</a>
+                            </li>
+                            {{#fqpagenums}}
+                            <li class="page-item {{#active}}active{{/active}}">
+                                <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=question_followups&amp;fqpage={{num}}">{{num}}</a>
+                            </li>
+                            {{/fqpagenums}}
+                            <li class="page-item {{#fqpagelast}}disabled{{/fqpagelast}}">
+                                <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=question_followups&amp;fqpage={{fqnextpage}}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                {{/fqhasmulti}}
+            </div>
+        </div>
+
+        <div class="tab-pane {{#tab_student_followups}}active{{/tab_student_followups}}" id="tab-student-followups">
+            <div class="mt-4">
+                {{#has_userid_filter}}
+                <div class="alert alert-info d-flex justify-content-between align-items-center mb-3">
+                    <span>
+                        {{#str}}stats_user, local_ai_programming_assistant{{/str}} ID: {{filter_userid}}
+                    </span>
+                    <a href="?quizid={{quizid}}&amp;tab=student_followups{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}"
+                       class="btn btn-outline-secondary btn-sm">
+                        {{#str}}quiz_stats_clear_filter, local_ai_programming_assistant{{/str}}
+                    </a>
+                </div>
+                {{/has_userid_filter}}
+                {{#has_studentconversations}}
+                {{#has_export}}
+                <div class="d-flex justify-content-end mb-2">
+                    <a href="?export=csv&amp;tab=student_followups&amp;quizid={{quizid}}{{#cmid}}&amp;cmid={{cmid}}{{/cmid}}{{#groupid}}&amp;groupid={{groupid}}{{/groupid}}{{#starttime_display}}&amp;starttime={{starttime_display}}{{/starttime_display}}{{#endtime_display}}&amp;endtime={{endtime_display}}{{/endtime_display}}{{#filter_userid}}&amp;filter_userid={{filter_userid}}{{/filter_userid}}"
+                       class="btn btn-outline-success btn-sm">
+                        {{#str}}export_csv, local_ai_programming_assistant{{/str}}
+                    </a>
+                </div>
+                {{/has_export}}
+                {{#studentconversations}}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h5 class="mb-0">{{studentname}} ({{username}})</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-striped mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>{{#str}}stats_question_name, local_ai_programming_assistant{{/str}}</th>
+                                    <th>{{#str}}recent_quiz_chats_mode, local_ai_programming_assistant{{/str}}</th>
+                                    <th class="text-center">{{#str}}conversation_list_messagecount, local_ai_programming_assistant{{/str}}</th>
+                                    <th>{{#str}}stats_time, local_ai_programming_assistant{{/str}}</th>
+                                    <th>{{#str}}question_detail_action, local_ai_programming_assistant{{/str}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#conversations}}
+                                <tr>
+                                    <td>{{questionname}}</td>
+                                    <td><span class="badge bg-light text-info border border-info">{{actiontype_label}}</span></td>
+                                    <td class="text-center">{{messagecount}}</td>
+                                    <td><span class="text-muted small">{{starttime_str}}</span></td>
+                                    <td>
+                                        <a href="{{{detailurl}}}" class="btn btn-sm btn-outline-primary">
+                                            {{#str}}question_detail_view_detail, local_ai_programming_assistant{{/str}}
+                                        </a>
+                                    </td>
+                                </tr>
+                                {{/conversations}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {{/studentconversations}}
+                {{/has_studentconversations}}
+                {{^has_studentconversations}}
+                <div class="alert alert-warning">{{#str}}quiz_stats_require_rest, local_ai_programming_assistant{{/str}}</div>
+                {{/has_studentconversations}}
+                {{#fshasmulti}}
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item {{#fspageone}}disabled{{/fspageone}}">
+                                <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=student_followups&amp;fspage={{fsprevpage}}">&laquo;</a>
+                            </li>
+                            {{#fspagenums}}
+                            <li class="page-item {{#active}}active{{/active}}">
+                                <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=student_followups&amp;fspage={{num}}">{{num}}</a>
+                            </li>
+                            {{/fspagenums}}
+                            <li class="page-item {{#fspagelast}}disabled{{/fspagelast}}">
+                                <a class="page-link" href="?{{{baseurlparams}}}&amp;tab=student_followups&amp;fspage={{fsnextpage}}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+                {{/fshasmulti}}
+            </div>
+        </div>
+    </div>
+    {{/hasquiz}}
+
+    {{^shownodata}}{{^hasquiz}}{{^invalidquiz}}
+    <div class="card mt-4">
+        <div class="card-body text-center text-muted py-5">
+            <p class="mb-0">{{#str}}quiz_stats_search_hint, local_ai_programming_assistant{{/str}}</p>
+        </div>
+    </div>
+    {{/invalidquiz}}{{/hasquiz}}{{/shownodata}}
+</div>

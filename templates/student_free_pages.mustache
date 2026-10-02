@@ -1,0 +1,121 @@
+{{!
+    AI 编程助手 - 学生自由模式页面列表模板
+
+    显示某学生在自由模式下使用过 AI 反馈的页面列表，点击可查看具体对话记录。
+
+    @template local_ai_programming_assistant/student_free_pages
+    @author zfl
+}}
+<div class="ai-programming-assistant-student-free-pages-page">
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                <div>
+                    <h5 class="mb-1">{{studentname}} ({{studentusername}})</h5>
+                    <a href="{{{backtourl}}}" class="btn btn-outline-secondary btn-sm">
+                        {{#str}}student_free_pages_back_to_stats, local_ai_programming_assistant{{/str}}
+                    </a>
+                </div>
+                <form method="get" action="" class="d-flex flex-wrap align-items-end gap-2">
+                    <input type="hidden" name="userid" value="{{userid}}">
+                    <div>
+                        <label for="starttime" class="form-label small mb-0">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="starttime" name="starttime" class="form-control form-control-sm"
+                               value="{{starttime_display}}" style="width:140px">
+                    </div>
+                    <div>
+                        <label for="endtime" class="form-label small mb-0">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="endtime" name="endtime" class="form-control form-control-sm"
+                               value="{{endtime_display}}" style="width:140px">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                    {{#hasdata}}
+                    <a href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;export=csv"
+                       class="btn btn-outline-success btn-sm">
+                        {{#str}}export_csv, local_ai_programming_assistant{{/str}}
+                    </a>
+                    {{/hasdata}}
+                </form>
+            </div>
+            <div class="mt-2">
+                <span class="badge bg-info">{{#str}}student_free_pages_total, local_ai_programming_assistant{{/str}}: {{totalpagecount}}</span>
+                <span class="badge bg-secondary ms-1">{{#str}}student_free_pages_interactions, local_ai_programming_assistant{{/str}}: {{totalinteractions}}</span>
+            </div>
+        </div>
+    </div>
+
+    {{^hasdata}}
+    <div class="alert alert-warning">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</div>
+    {{/hasdata}}
+
+    {{#hasdata}}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>{{#str}}student_free_pages_pageid, local_ai_programming_assistant{{/str}}</th>
+                    <th>{{#str}}student_free_pages_pagename, local_ai_programming_assistant{{/str}}</th>
+                    <th>{{#str}}student_free_pages_pagetype, local_ai_programming_assistant{{/str}}</th>
+                    <th>{{#str}}student_free_pages_course, local_ai_programming_assistant{{/str}}</th>
+                    <th>{{#str}}stats_total_requests, local_ai_programming_assistant{{/str}}</th>
+                    <th>{{#str}}stats_success, local_ai_programming_assistant{{/str}}</th>
+                    <th>{{#str}}student_questions_last_interaction, local_ai_programming_assistant{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#pages}}
+                <tr>
+                    <td>
+                        <a href="{{{detailurl}}}" title="{{#str}}free_chat_detail_view, local_ai_programming_assistant{{/str}}">
+                            {{contextid}}
+                        </a>
+                    </td>
+                    <td>
+                        {{#pageurl}}
+                        <a href="{{{pageurl}}}" target="_blank" rel="noopener noreferrer" title="{{#str}}student_free_pages_view_page, local_ai_programming_assistant{{/str}}">
+                            {{pagename}}
+                        </a>
+                        {{/pageurl}}
+                        {{^pageurl}}
+                        {{pagename}}
+                        {{/pageurl}}
+                    </td>
+                    <td>
+                        <a href="{{{detailurl}}}" title="{{#str}}free_chat_detail_view, local_ai_programming_assistant{{/str}}">
+                            {{pagetype}}
+                        </a>
+                        {{#modname}}<span class="badge bg-light text-dark border border-secondary ms-1">{{modname}}</span>{{/modname}}
+                    </td>
+                    <td>{{coursename}}</td>
+                    <td>{{interaction_count}}</td>
+                    <td>{{successful_count}}</td>
+                    <td><span class="text-muted small">{{last_interaction_str}}</span></td>
+                </tr>
+                {{/pages}}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-2 mb-2 px-2">
+        <small class="text-muted">{{#str}}student_free_pages_total, local_ai_programming_assistant{{/str}}: {{totalpagecount}}</small>
+        {{#hasmulti}}
+        <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {{#pageone}}disabled{{/pageone}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;page={{prevpage}}" aria-label="{{#str}}previous{{/str}}">&laquo;</a>
+                </li>
+                {{#pagenums}}
+                <li class="page-item {{#active}}active{{/active}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;page={{num}}">{{num}}</a>
+                </li>
+                {{/pagenums}}
+                <li class="page-item {{#pagelast}}disabled{{/pagelast}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}&amp;page={{nextpage}}" aria-label="{{#str}}next{{/str}}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        {{/hasmulti}}
+    </div>
+    {{/hasdata}}
+
+</div>

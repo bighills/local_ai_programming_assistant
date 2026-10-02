@@ -1,0 +1,100 @@
+{{!
+    AI 编程助手 - 学生题目列表页模板
+
+    显示某学生使用过 AI 反馈的试题列表，点击题目可查看详细对话记录。
+
+    @template local_ai_programming_assistant/student_questions
+    @author zfl
+}}
+<div class="ai-programming-assistant-student-questions-page">
+
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+                <div>
+                    <h5 class="mb-1">{{studentname}} ({{studentusername}})</h5>
+                    <a href="{{{backtourl}}}" class="btn btn-outline-secondary btn-sm">
+                        {{#str}}student_questions_back, local_ai_programming_assistant{{/str}}
+                    </a>
+                </div>
+                <form method="get" action="" class="d-flex flex-wrap align-items-end gap-2">
+                    <input type="hidden" name="userid" value="{{userid}}">
+                    {{#quizid}}
+                    <input type="hidden" name="quizid" value="{{quizid}}">
+                    {{/quizid}}
+                    <div>
+                        <label for="starttime" class="form-label small mb-0">{{#str}}stats_time_from, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="starttime" name="starttime" class="form-control form-control-sm"
+                               value="{{starttime_display}}" style="width:140px">
+                    </div>
+                    <div>
+                        <label for="endtime" class="form-label small mb-0">{{#str}}stats_time_to, local_ai_programming_assistant{{/str}}</label>
+                        <input type="date" id="endtime" name="endtime" class="form-control form-control-sm"
+                               value="{{endtime_display}}" style="width:140px">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">{{#str}}stats_search_btn, local_ai_programming_assistant{{/str}}</button>
+                </form>
+            </div>
+            <div class="mt-2">
+                <span class="badge bg-info">{{#str}}student_questions_total, local_ai_programming_assistant{{/str}}: {{totalquestions}}</span>
+            </div>
+        </div>
+    </div>
+
+    {{^hasdata}}
+    <div class="alert alert-warning">{{#str}}stats_no_data, local_ai_programming_assistant{{/str}}</div>
+    {{/hasdata}}
+
+    {{#hasdata}}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>{{#str}}question, local_ai_programming_assistant{{/str}}</th>
+                    <th>{{#str}}conversation_list_page_title, local_ai_programming_assistant{{/str}}</th>
+                    <th>{{#str}}student_questions_last_interaction, local_ai_programming_assistant{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#questions}}
+                <tr>
+                    <td>{{questionname}}</td>
+                    <td>
+                        <a href="{{wwwroot}}/local/ai_programming_assistant/conversation_list.php?userid={{userid}}&amp;questionid={{questionid}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                           class="text-decoration-none" title="{{#str}}stats_view_user_conversations, local_ai_programming_assistant{{/str}}">
+                            {{interaction_count}}
+                        </a>
+                        <a href="{{wwwroot}}/local/ai_programming_assistant/asked_questions.php?userid={{userid}}&amp;questionid={{questionid}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}"
+                           class="badge bg-info text-white ms-1 align-middle" title="{{#str}}asked_questions_view_student_question, local_ai_programming_assistant{{/str}}">
+                            {{#str}}asked_questions_short, local_ai_programming_assistant{{/str}}
+                        </a>
+                    </td>
+                    <td><span class="text-muted small">{{last_interaction_str}}</span></td>
+                </tr>
+                {{/questions}}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center mt-2 mb-2 px-2">
+        <small class="text-muted">{{#str}}student_questions_total, local_ai_programming_assistant{{/str}}: {{totalquestions}}</small>
+        {{#hasmulti}}
+        <nav aria-label="{{#str}}pagination, local_ai_programming_assistant{{/str}}">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {{#pageone}}disabled{{/pageone}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;page={{prevpage}}" aria-label="{{#str}}previous{{/str}}">&laquo;</a>
+                </li>
+                {{#pagenums}}
+                <li class="page-item {{#active}}active{{/active}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;page={{num}}">{{num}}</a>
+                </li>
+                {{/pagenums}}
+                <li class="page-item {{#pagelast}}disabled{{/pagelast}}">
+                    <a class="page-link" href="?userid={{userid}}&amp;starttime={{starttime_display}}&amp;endtime={{endtime_display}}{{#quizid}}&amp;quizid={{quizid}}{{/quizid}}&amp;page={{nextpage}}" aria-label="{{#str}}next{{/str}}">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+        {{/hasmulti}}
+    </div>
+    {{/hasdata}}
+
+</div>

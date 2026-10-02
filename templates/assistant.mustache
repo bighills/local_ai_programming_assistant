@@ -1,0 +1,107 @@
+{{!
+    AI 编程助手 - 聊天面板模板
+
+    AI 助手浮动按钮和聊天面板的 HTML 结构。
+    包括：头部标题栏、题目选择栏、策略按钮栏、对话日志区域、输入框和操作按钮。
+
+    @template local_ai_programming_assistant/assistant
+    @author zfl
+
+    Example context (json):
+    {
+        "assistant_name": "Programming Assistant",
+        "user_name": "student1"
+    }
+}}
+<div id="ai-programming-assistant" class="ai-assistant-collapsed" role="complementary"
+     aria-label="{{#str}}pluginname, local_ai_programming_assistant{{/str}}"
+     data-config='{{{config_json}}}'>
+    <button id="ai-assistant-toggle" class="btn btn-primary ai-assistant-toggle" title="{{#str}}askaquestion, local_ai_programming_assistant{{/str}}" aria-label="{{#str}}toggle_panel, local_ai_programming_assistant{{/str}}">
+        <i class="fa fa-code" aria-hidden="true"></i>
+    </button>
+
+    <div id="ai-assistant-panel" class="ai-assistant-panel">
+        <div class="ai-assistant-header">
+    <span class="ai-assistant-title">{{assistant_name}}</span>
+    <div class="ai-header-actions">
+        <div class="ai-viewmode-group dropdown">
+            <button class="btn btn-sm btn-link text-white ai-viewmode-toggle" data-bs-toggle="dropdown" aria-expanded="false" title="{{#str}}viewmode_switch, local_ai_programming_assistant{{/str}}" aria-label="{{#str}}viewmode_switch, local_ai_programming_assistant{{/str}}">
+                <i class="fa fa-window-restore" aria-hidden="true"></i>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end">
+                <a class="dropdown-item ai-viewmode-option" href="#" data-viewmode="floating" aria-label="{{#str}}viewmode_floating, local_ai_programming_assistant{{/str}}">
+                    <i class="fa fa-comment" aria-hidden="true"></i> {{#str}}viewmode_floating, local_ai_programming_assistant{{/str}}
+                </a>
+                <a class="dropdown-item ai-viewmode-option" href="#" data-viewmode="sidebar" aria-label="{{#str}}viewmode_sidebar, local_ai_programming_assistant{{/str}}">
+                    <i class="fa fa-columns" aria-hidden="true"></i> {{#str}}viewmode_sidebar, local_ai_programming_assistant{{/str}}
+                </a>
+            </div>
+        </div>
+        <button id="ai-assistant-popout" class="btn btn-sm btn-link text-white" title="{{#str}}popout, local_ai_programming_assistant{{/str}}" aria-label="{{#str}}popout, local_ai_programming_assistant{{/str}}">
+            <i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i>
+        </button>
+        <button id="ai-assistant-refresh" class="btn btn-sm btn-link text-white" title="{{#str}}new_chat, local_ai_programming_assistant{{/str}}" aria-label="{{#str}}new_chat, local_ai_programming_assistant{{/str}}">
+            <i class="fa fa-arrows-rotate" aria-hidden="true"></i>
+        </button>
+        <button id="ai-assistant-minimize" class="btn btn-sm btn-link text-white" title="{{#str}}minimize, local_ai_programming_assistant{{/str}}" aria-label="{{#str}}minimize, local_ai_programming_assistant{{/str}}">
+            <i class="fa fa-minus" aria-hidden="true"></i>
+        </button>
+    </div>
+</div>
+        <div class="ai-assistant-question-bar">
+            <label for="ai-assistant-question-select" class="ai-question-label">{{#str}}questionlabel, local_ai_programming_assistant{{/str}}</label>
+            <select id="ai-assistant-question-select" class="form-select form-select-sm ai-question-select">
+                <option value="-1">{{#str}}question_select_placeholder, local_ai_programming_assistant{{/str}}</option>
+            </select>
+        </div>
+        <div id="ai-assistant-log" class="ai-assistant-log" role="log" aria-live="polite" aria-relevant="additions"></div>
+        <div class="ai-assistant-resize-handle" id="ai-assistant-resize-handle" title="{{#str}}resize_panel, local_ai_programming_assistant{{/str}}">
+            <i class="fa fa-grip-lines" aria-hidden="true"></i>
+        </div>
+        <div class="ai-sidebar-resize-handle" id="ai-sidebar-resize-handle" title="{{#str}}sidebar_resize, local_ai_programming_assistant{{/str}}">
+            <i class="fa fa-grip-lines-vertical" aria-hidden="true"></i>
+        </div>
+        <div class="ai-assistant-strategy-bar">
+            <button class="btn btn-sm ai-strategy-btn ai-strategy-active" data-action="free" title="{{#str}}askaquestion, local_ai_programming_assistant{{/str}}" aria-label="{{#str}}askaquestion, local_ai_programming_assistant{{/str}}">
+                <i class="fa fa-comment" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-sm ai-strategy-btn ai-strategy-item-hidden" data-action="question_analysis" aria-label="{{#str}}strategy_question_analysis, local_ai_programming_assistant{{/str}}">
+                {{#str}}strategy_question_analysis, local_ai_programming_assistant{{/str}}
+            </button>
+            <button class="btn btn-sm ai-strategy-btn ai-strategy-item-hidden" data-action="idea_organization" aria-label="{{#str}}strategy_idea_organization, local_ai_programming_assistant{{/str}}">
+                {{#str}}strategy_idea_organization, local_ai_programming_assistant{{/str}}
+            </button>
+            <button class="btn btn-sm ai-strategy-btn ai-strategy-item-hidden" data-action="code_debugging" aria-label="{{#str}}strategy_code_debugging, local_ai_programming_assistant{{/str}}">
+                {{#str}}strategy_code_debugging, local_ai_programming_assistant{{/str}}
+            </button>
+            <button class="btn btn-sm ai-strategy-btn ai-back-btn ai-back-btn-hidden" data-action="back" aria-label="{{#str}}back_to_strategies, local_ai_programming_assistant{{/str}}">
+                <i class="fa fa-arrow-left" aria-hidden="true"></i> {{#str}}back_to_strategies, local_ai_programming_assistant{{/str}}
+            </button>
+        </div>
+        <div class="ai-assistant-strategy-options ai-strategy-options-hidden" id="ai-assistant-strategy-options">
+            <label class="ai-strategy-checkbox-label">
+                <input type="checkbox" id="ai-assistant-send-student-code">
+                {{#str}}strategy_send_student_code, local_ai_programming_assistant{{/str}}
+            </label>
+            <label class="ai-strategy-checkbox-label">
+                <input type="checkbox" id="ai-assistant-send-test-results">
+                {{#str}}strategy_send_test_results, local_ai_programming_assistant{{/str}}
+            </label>
+        </div>
+        <div class="ai-assistant-input-area">
+            <textarea
+                id="ai-assistant-input"
+                class="form-control ai-assistant-input"
+                rows="4"
+                placeholder="{{#str}}strategy_select_hint, local_ai_programming_assistant{{/str}}"
+                aria-label="{{#str}}strategy_select_hint, local_ai_programming_assistant{{/str}}"
+            ></textarea>
+            <button id="ai-assistant-send" class="btn btn-primary ai-assistant-send" title="{{#str}}sendmessage, local_ai_programming_assistant{{/str}}">
+                <i class="fa fa-paper-plane" aria-hidden="true"></i>
+            </button>
+            <button id="ai-assistant-stop" class="btn btn-danger ai-assistant-stop ai-stop-btn-hidden" title="{{#str}}stop_generating, local_ai_programming_assistant{{/str}}">
+                <i class="fa fa-stop" aria-hidden="true"></i>
+            </button>
+        </div>
+    </div>
+</div>

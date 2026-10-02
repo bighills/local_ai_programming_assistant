@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+/**
+ * AI 编程助手 - 数据库安装定义
+ *
+ * 定义插件的数据库表结构：
+ * local_ai_prog_assist_conversation - 对话会话表
+ * local_ai_prog_assist_message - 对话消息表
+ *
+ * @package    local_ai_programming_assistant
+ * @author zfl
+ */
+-->
+<XMLDB PATH="local/ai_programming_assistant/db" VERSION="2026080100" COMMENT="XMLDB file for local/ai_programming_assistant"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_ai_prog_assist_conversation" COMMENT="AI 对话会话表">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="用户ID"/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="试题ID（自由模式为0）"/>
+        <FIELD NAME="actiontype" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="free" SEQUENCE="false" COMMENT="操作类型"/>
+        <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="测验ID"/>
+        <FIELD NAME="contextid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="页面上下文ID"/>
+        <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="课程ID"/>
+        <FIELD NAME="cmid" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="课程模块ID"/>
+        <FIELD NAME="pagetype" TYPE="char" LENGTH="100" NOTNULL="false" SEQUENCE="false" COMMENT="页面类型"/>
+        <FIELD NAME="starttime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="会话开始时间"/>
+        <FIELD NAME="endtime" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="最后活跃时间"/>
+        <FIELD NAME="messagecount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="消息数量"/>
+        <FIELD NAME="metadata" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="扩展元数据JSON"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid-actiontype-endtime" UNIQUE="false" FIELDS="userid, actiontype, endtime"/>
+        <INDEX NAME="userid-question-action-end" UNIQUE="false" FIELDS="userid, questionid, actiontype, endtime"/>
+        <INDEX NAME="userid-context-end" UNIQUE="false" FIELDS="userid, contextid, endtime"/>
+        <INDEX NAME="quizid-endtime" UNIQUE="false" FIELDS="quizid, endtime"/>
+        <INDEX NAME="starttime" UNIQUE="false" FIELDS="starttime"/>
+        <INDEX NAME="quizid-starttime" UNIQUE="false" FIELDS="quizid, starttime"/>
+        <INDEX NAME="quizid-questionid-starttime" UNIQUE="false" FIELDS="quizid, questionid, starttime"/>
+        <INDEX NAME="quizid-userid-starttime" UNIQUE="false" FIELDS="quizid, userid, starttime"/>
+        <INDEX NAME="questionid-starttime" UNIQUE="false" FIELDS="questionid, starttime"/>
+        <INDEX NAME="contextid-starttime" UNIQUE="false" FIELDS="contextid, starttime"/>
+        <INDEX NAME="courseid-starttime" UNIQUE="false" FIELDS="courseid, starttime"/>
+        <INDEX NAME="userid-question-starttime" UNIQUE="false" FIELDS="userid, questionid, starttime"/>
+        <INDEX NAME="endtime-id" UNIQUE="false" FIELDS="endtime, id"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_ai_prog_assist_message" COMMENT="AI 对话消息表">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="conversationid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="所属会话ID"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="角色：user/assistant"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="消息内容"/>
+        <FIELD NAME="timestamp" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="消息时间戳"/>
+        <FIELD NAME="metadata" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="元数据JSON（token用量、模型等）"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="conversationid" TYPE="foreign" FIELDS="conversationid" REFTABLE="local_ai_prog_assist_conversation" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="conversationid-timestamp" UNIQUE="false" FIELDS="conversationid, timestamp"/>
+        <INDEX NAME="conversationid-role-timestamp" UNIQUE="false" FIELDS="conversationid, role, timestamp"/>
+        <INDEX NAME="role-timestamp" UNIQUE="false" FIELDS="role, timestamp"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_ai_prog_assist_kb_files" COMMENT="AI 编程助手知识库文件表">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="文件显示名称"/>
+        <FIELD NAME="filename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="原始文件名"/>
+        <FIELD NAME="filesize" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="文件大小（字节）"/>
+        <FIELD NAME="filehash" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false" COMMENT="文件 SHA1 哈希"/>
+        <FIELD NAME="chunkcount" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="分块数量"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="tag" TYPE="char" LENGTH="100" NOTNULL="true" DEFAULT="数据与计算" SEQUENCE="false" COMMENT="教材来源标签"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="timecreated" UNIQUE="false" FIELDS="timecreated"/>
+        <INDEX NAME="filehash" UNIQUE="false" FIELDS="filehash"/>
+        <INDEX NAME="tag" UNIQUE="false" FIELDS="tag"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_ai_prog_assist_kb_chunks" COMMENT="AI 编程助手知识库文本分块表">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="fileid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="关联的知识库文件ID"/>
+        <FIELD NAME="chunkindex" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="块序号"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="文本内容"/>
+        <FIELD NAME="term_count" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="该块分词后的词数（用于 BM25 文档长度归一化）"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="fileid" TYPE="foreign" FIELDS="fileid" REFTABLE="local_ai_prog_assist_kb_files" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="fileid-chunkindex" UNIQUE="true" FIELDS="fileid, chunkindex"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_ai_prog_assist_kb_terms" COMMENT="AI 编程助手知识库倒排索引表">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="term" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="分词后的词条"/>
+        <FIELD NAME="chunkid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="关联的分块ID"/>
+        <FIELD NAME="frequency" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="该词在该块中出现的次数"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="term-idx" UNIQUE="false" FIELDS="term"/>
+        <INDEX NAME="chunkid-idx" UNIQUE="false" FIELDS="chunkid"/>
+        <INDEX NAME="term-chunk-uix" UNIQUE="true" FIELDS="term, chunkid"/>
+      </INDEXES>
+    </TABLE>
+
+    <TABLE NAME="local_ai_prog_assist_kb_coll_stats" COMMENT="AI 编程助手知识库 BM25 集合统计表">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="stat_name" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="统计项名称"/>
+        <FIELD NAME="stat_value" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="统计值"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="stat-name-uix" UNIQUE="true" FIELDS="stat_name"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
